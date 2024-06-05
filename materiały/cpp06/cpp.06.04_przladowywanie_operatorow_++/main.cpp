@@ -77,7 +77,6 @@ inline std::ostream& operator<<(std::ostream& strm, const Point &K)
 	return (strm << K.GetA() << "," << K.GetB());	
 }
 
-/////////////////////////////////////////////////////////
 inline std::istream& operator>>(std::istream& strm, Point &K)
 {
 	double a, b;

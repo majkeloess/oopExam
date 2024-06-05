@@ -24,20 +24,17 @@ A f() { return A{}; }
 struct B : A {
   std::string s2;
   int n;
-  // implicit move assignment operator B& B::operator=(B&&)
-  // calls A's move assignment operator
-  // calls s2's move assignment operator
-  // and makes a bitwise copy of n
+
 };
 
 struct C : B {
-  ~C() {} // destructor prevents implicit move assignment
+  ~C() {} 
 };
 
 struct D : B {
   D() {}
-  ~D() {} // destructor would prevent implicit move assignment
-  D &operator=(D &&) = default; // force a move assignment anyway
+  ~D() {} 
+  D &operator=(D &&) = default; 
 };
 
 int main() {
