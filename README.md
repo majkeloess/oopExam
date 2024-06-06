@@ -933,6 +933,56 @@ int main() {
 
 ```
 
+## Printowanie klas dziedziczonych z pomocą operatora<<
+
+First, we set up operator<< as a friend in our base class as usual. But rather than have operator<< determine what to print, we will instead have it call a normal member function that can be virtualized! This virtual function will do the work of determining what to print for each class.
+
+```cpp
+class Base
+{
+public:
+	// Here's our overloaded operator<<
+	friend std::ostream& operator<<(std::ostream& out, const Base& b)
+	{
+		// Delegate printing responsibility for printing to virtual member function print()
+		return b.print(out);
+	}
+
+	// We'll rely on member function print() to do the actual printing
+	// Because print() is a normal member function, it can be virtualized
+	virtual std::ostream& print(std::ostream& out) const
+	{
+		out << "Base";
+		return out;
+	}
+};
+
+class Derived : public Base
+{
+private:
+	Employee m_e{}; // Derived now has an Employee member
+
+public:
+	Derived(const Employee& e)
+		: m_e{ e }
+	{
+	}
+
+	// Here's our override print() function to handle the Derived case
+	std::ostream& print(std::ostream& out) const override
+	{
+		out << "Derived: ";
+
+		// Print the Employee member using the stream object
+		out << m_e;
+
+		return out;
+	}
+};
+
+
+```
+
 # IV Dziedziczenie wielokrotne
 
 ## Dodatkowe informacje z działu
