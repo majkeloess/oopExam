@@ -549,16 +549,389 @@ Słowo kluczowe inline jest wskazówką dla kompilatora, że funkcja powinna by�
 # II Dziedziczenie
 
 -Dziedziczenie to technika umożliwiająca zdefiniowanie nowej klasy z wykorzystaniem klasy już istniejącej
--Nowa klasa staje się automatycznie nowym typem danych
--Klasę z której dziedziczymy nazywamy klasą bazową lub podstawową
--Klasa która odziedzicza składniki i metody po innej klasie nazywana jest klasą pochodną
-//TODO
 
-## Dodatkowe informacje z działu
+Nowa klasa staje się automatycznie nowym typem danych
+
+Klasę z której dziedziczymy nazywamy klasą bazową lub podstawową
+
+Klasa która odziedzicza składniki i metody po innej klasie nazywana jest klasą pochodną
+
+Przy dziedziczenia public (class Nowa : public Baza) odziedziczone składniki public i protected pozostają takie niezmienione.
+
+Przy dziedziczenia protected (class Nowa :protected Baza) odziedziczone składniki zarówno public i protected stają się protected
+
+Przy dziedziczenia private (class Nowa : private Baza) odziedziczone składniki staję się prywatną własnością klasy pochodnej ,domyślnie (bez podania sposobu) dziedziczenie jest
+prywatne dla klas
+
+Jeżeli dziedziczymy dane pola prywatnie możemy za pomocą using zmienić ich dostęp na publicznym jest to tzw deklaracja dostępu:
+
+```cpp
+class Rec : Shape
+{
+public:
+  using Shape::SetX; //c++11
+  using Shape::SetY;
+};
+
+```
+
+Elementy niedziedziczone:
+
+1. Konstruktory
+2. Operator przypisania (=)
+3. Destruktor
+
+W klasie pochodnej w pewnym sensie tkwi klasa
+podstawowa. Tworzenie klasy pochodnej to dobudowywanie
+elementów do klasy podstawowej. Do pracy najpierw rusza konstruktor klasy
+podstawowej, a dopiero potem klasy pochodnej.
+
+Konstruktory klasy pochodnej tworzy się w znany już sposób. Należy pamiętać, że na liście inicjalizacyjnej konstruktora
+klasy pochodnej trzeba umieść konstruktor klasy
+podstawowej chyba, że:
+
+1. Klasa podstawowa nie ma żadnego konstruktora
+2. Ma konstruktory, a wśród nich jest konstruktor domyślny
+
+Na liście inicjalizacyjnej umieszcza się tylko konstruktory klas
+podstawowych bezpośrednich, czyli znajdujących się o jeden poziom
+wyżej w hierarchii.
+
+Tak jak przy zwykłej klasie nie ma sensu definiować
+operatora przypisania jeżeli zostanie on
+wygenerowany przez kompilator i będzie działał
+dobrze.
+
+Jeżeli nie zdefiniujemy konstruktora kopiującego to klasa
+pochodna wygeneruje go sobie sama.
+
+Jeżeli nie ma faktycznej potrzeby to nie definiujemy tego
+konstruktora, pozwalamy kompilatorowi na automatyczną
+jego generację.
 
 # III Funkcje wirtualne
 
-## Dodatkowe informacje z działu
+## Konwersje standardowe przy dziedziczeniu
+
+Chodzi o to, że w C++, gdy mamy do czynienia z dziedziczeniem klas, możemy w pewnych sytuacjach automatycznie (niejawnie) konwertować wskaźniki lub referencje obiektów klasy pochodnej na wskaźniki lub referencje obiektów klasy bazowej.
+
+Kiedy to działa?
+
+Dziedziczenie publiczne: Konwersja działa tylko wtedy, gdy klasa pochodna dziedziczy publicznie po klasie bazowej.
+Dostępność jednoznaczna: Klasa bazowa musi być dostępna jednoznacznie, czyli nie może być sytuacji, w której klasa pochodna dziedziczy po kilku klasach bazowych o tej samej nazwie.
+
+```cpp
+
+class Zwierze {};
+class Pies : public Zwierze {};
+
+Pies* pies = new Pies();
+Zwierze* zwierze = pies; // Niejawna konwersja Pies* -> Zwierze*
+
+
+void nakarm(Zwierze& zwierze) { /* ... */ }
+
+Pies pies;
+nakarm(pies); // Niejawna konwersja Pies& -> Zwierze&
+
+
+```
+
+## Funkcje wirtualne
+
+Realizacja klas podstawowych i pochodnych w
+zasadzie jest taka sama ale pojawia się słowo virtual przy nazwach funkcji
+składowych (niekoniecznie wszystkich), które umożliwia
+wykonywanie różnych funkcji w zależności od typu
+obiektu na rzecz, którego chcemy taką funkcję wywołać, wykorzystanie funkcji wirtualnych może w znakomity sposób ułatwić i uprościć nam pracę na projektem.
+
+Możliwe jest ustawienie wskaźnika (referencji) typu klasy
+podstawowej tak, żeby pokazywał na obiekt klasy
+pochodnej, wynika to z uogólnienia tzn. klasa pochodna jest
+szczególnym (bardziej wyspecjalizowanym) typem klasy
+podstawowej. Np. mając wskaźnik do pojazdów możemy nim pokazywać na
+samochód lub nawet na „malucha” i nie jest to niezgodne z naszym
+wyobrażeniem o rzeczywistości (samochód jest rodzajem
+pojazdu). Sytuacja odwrotna nie jest już prawdziwa.
+
+## Różnica między funkcją wirtualną, a zwykłą
+
+Niewirtualnej (zwykłej) spowoduje wywołanie odpowiedniej funkcji
+składowej w klasie podstawowej – zupełnie normalna sytuacja.
+
+Wirtualnej spowoduje wywołanie odpowiedniej funkcji składowej
+uzależnionej od typu obiektu, na który w danym momencie pokazuje
+wskaźnik.
+
+Dodanie przymiotnika virtual przy funkcji składowej w klasie
+podstawowej mówi, że od tego momentu wszystkie dalsze
+pokolenia będą tą funkcję mieć wirtualną, Tylko wtedy kiedy taka funkcja jest identyczna tzn. posiada taką samą nazwę, przyjmuje takie same parametry oraz zwraca taki sam typ.
+
+## Polimorfizm
+
+Polimorfizm – wielość form. Jest to wykazywanie przez metodę różnych form
+działania w zależności od tego jaki typ obiektu
+aktualnie jest wskazywany przez wskaźnik lub
+referencję. Sama funkcja wirtualna polimorfizmu nie wykazuje, funkcja nie jest polimorficzna, ale tylko jej wywołanie jest.
+
+W tym konkretnym kodzie, wirtualny destruktor (virtual ~Shape()) w klasie bazowej Shape jest użyty głównie z myślą o poprawnej obsłudze polimorfizmu i uniknięciu potencjalnych problemów z wyciekiem pamięci.
+
+Polimorfizm i usuwanie obiektów: Gdy używasz wskaźników lub referencji do klasy bazowej (Shape) do przechowywania obiektów klas pochodnych (np. Circ), wirtualny destruktor zapewnia, że przy usuwaniu takiego obiektu zostanie wywołany poprawny destruktor (z klasy pochodnej). Bez wirtualnego destruktora, zostałby wywołany tylko destruktor klasy bazowej, co mogłoby prowadzić do niepełnego zwalniania zasobów, a w konsekwencji do wycieków pamięci.
+
+Bezpieczeństwo i rozszerzalność: Nawet jeśli w tej chwili klasa Shape nie ma żadnych zasobów do zwolnienia (np. zaalokowanej dynamicznie pamięci), dodanie wirtualnego destruktora jest dobrą praktyką programistyczną. Jeśli w przyszłości zdecydujesz się rozszerzyć klasę Shape o nowe składowe, które wymagają zwalniania zasobów, wirtualny destruktor będzie już na swoim miejscu i zapewni prawidłowe działanie.
+
+```cpp
+//Shape:
+class Shape
+{
+public:
+	Shape(double x = 0, double y = 0) : m_x(x), m_y(y)
+	{}
+	virtual ~Shape()
+	{}
+	double GetX() const;
+	double GetY() const;
+	void SetX(double x);
+	void SetY(double y);
+
+	virtual void Rys() const
+	{ std::cout << "Nie wiem jak!\n"; }
+	virtual double Pole() const
+	{ return 0.0; }
+
+protected:
+	double m_x, m_y;
+};
+
+//Circle:
+class Circ : public Shape
+{
+public:
+	Circ(double x = 0, double y = 0, double rad = 1) : Shape(x, y), m_rad(rad)
+	{}
+	double Pole() const override;
+	void Rys() const override;
+
+protected:
+	double m_rad;
+};
+
+```
+
+## Pożytek z polimorfizmu
+
+Program jest rozszerzalny o nowe obiekty (typy), a ich
+dodanie nie wymaga zmian w już istniejącym kodzie, W szczególności w miejscach, gdzie decyduje się jakiej klasy jest obiekt pokazywany przez wskaźnik lub nazywany referencją.
+
+## Early and late binding
+
+Wczesne wiązanie następuje w sytuacji kiedy wywoływane są
+zwykłe funkcje i na etapie kompilacji wywołania funkcji powiązane
+zostają z adresami, pod którymi te funkcje się znajdują, inaczej wiązanie w trakcie kompilacji.
+
+Późne wiązanie występuje w sytuacji kiedy posługujemy się
+funkcjami wirtualnymi. Kiedy kompilator widzi funkcję wirtualną
+to nie podstawia określonego adresu, ale generuje odpowiedni
+kod pozwalający na wybór określonej wersji funkcji na etapie
+wykonania programu
+
+W wywołaniu funkcji wirtualnych może wystąpić wczesne
+wiązanie jeżeli już na etapie kompilacji wiadomo dokładnie, która
+wersja funkcji ma zostać wywołana
+
+## Klasy abstrakcyjne
+
+Klasa abstrakcyjna to taka klasa, która nie
+reprezentuje żadnego konkretnego obiektu. Np. pojazd, figura geometryczna itp...
+
+Takie klasy tworzy się, aby po nich dziedziczyć. W pewnym sensie są to niedokończone klasy. Tworzymy funkcje wirtualne, których będziemy
+używać, ale implementacje tych funkcji
+pozostawiamy klasom pochodnym. Np. w klasie figura, powinna znaleźć się funkcja rysuj,
+mimo iż jeszcze nie wiadomo jak taką figurę narysować
+
+## Funkcje czysto wirtualne
+
+Funkcje czysto wirtualne mają ścisły związek z klasami
+abstrakcyjnymi, skoro nie ma sensu tworzyć obiektów klasy abstrakcyjnej
+to dla przykładowej funkcji rysuj nie jest potrzebna
+implementacja w klasie podstawowej.
+
+Deklaracja funkcji czysto wirtualnej:
+
+```cpp
+  virtual void rysuj() = 0;
+```
+
+Dopóki klasa ma chociaż jedną funkcje czysto wirtualną to
+NIE MOŻNA stworzyć żadnego obiektu takiej klasy
+
+Brak możliwości stworzenie obiektu klasy
+abstrakcyjnej z funkcją czysto wirtualną odnosi
+się do wszystkich sytuacji:
+
+```cpp
+	//Nie mo�na stworzy� obiektu klasy abstrakcyjnej
+	// Shape aShape;
+	Rec aRec;
+	Circ aCirc;
+
+	//mo�emy u�y� referencji
+	Shape& RefShape = aCirc;
+	//mo�emy u�y� wskaznika
+	Shape* Shape;
+```
+
+## Wirtualny destruktor
+
+Jeżeli klasa ma być klasą bazową to zawsze powinna
+deklarować destruktor jako wirtualny
+
+```cpp
+	virtual ~Shape()
+	{}
+```
+
+## C++11 override i final
+
+Chcąc wymusić sprawdzenie czy funkcja, którą deklarujemy przesłania
+metodę wirtualną z klasy bazowej należy użyć słowa override
+
+Z drugiej strony czasami istnieje potrzeba aby zagwarantować aby
+wirtualna metoda nie była przesłaniana w klasach pochodnych, wtedy używa się final
+
+Podobnie można sobie wyobrazić że klasa ma sam nie pozawalać aby po
+niej dziedziczyć, wtedy do definicji klasy dodajemy słowo final
+
+```cpp
+struct Base {
+  virtual void foo() const
+  {}
+};
+
+struct A : Base {
+  void foo() const final
+  {}
+
+  // void bar() final; // Error: bar is non-virtual
+};
+
+struct B final : A {
+  // void foo() const override; //Error: A:foo is final
+};
+
+struct C //: B  // Error: B is final
+{
+
+};
+
+int main(int argc, char *argv[]) {
+	A a;
+	B b;
+  C c;
+}
+
+
+```
+
+## Konwersje jawne
+
+Podczas wykorzystywania polimorfizmu możemy natrafić na
+pewien problem: posługując się obiektem za pomocą uogólnienia nie znamy jego
+rzeczywistego typu, w niektórych sytuacjach potrzebna nam jest dokładana
+informacja o faktycznym typie obiektu.
+
+W C++ możemy jednak odzyskać informację o typie
+obiektu za pomocą mechanizmu RTTI (run-time type
+information), spróbować przekształcić obiekt na jego rzeczywisty typ
+korzystając z rzutowania
+
+## Rzutowanie dynamic_cast
+
+Posługując się operatorem rzutowania dynamic_cast
+możemy przywrócić obiektowi jego rzeczywisty typ
+
+```cpp
+  RecLbl(const std::string& s) : RecLbl()  // Delegacja do konstruktora bezargumentowego
+  {
+      m_ptrOpis = s;
+  }
+```
+
+## Zapytanie o typ
+
+Za pomocą operatora typeid możemy ustalić typ obiektu
+podczas wykonania programu, musimy dołączyć nagłówek typeinfo
+
+```cpp
+  cout << typeid(obj).name();
+  if(typeid(obj) == typeid(Klasa))
+```
+
+Operator typeid zwraca obiekt std::type_info, dla
+którego zdefiniowane są między innymi:
+
+1. Funkcja name() – zwraca nazwę klasy (dokładna postać zależy
+   od implementacji)
+2. Operatory == i != pozwalające na porównanie dwóch typów
+
+## Mechanizm RTTI i projektowanie klas
+
+1. Mechanizm RTTI należy używać z rozwagą (w
+   szczególności typeid)
+2. Używanie tego mechanizmu sprzyja tworzeniu
+   nieprawidłowo zaprojektowanego kodu, dlatego należy go
+   unikać
+3. Jeżeli tylko jest możliwe to należy używać funkcji
+   wirtualnych i projektować klasy tak, żeby możliwe było
+   wywołanie odpowiedniej funkcji składowej
+4. W szczególnym przypadku możemy posłużyć się
+   rzutowaniem dynamic_cast
+
+```cpp
+#include <iostream>
+#include <typeinfo>
+
+class Zwierze {
+public:
+    virtual void dajGlos() const { std::cout << "Zwierzęcy dźwięk\n"; }
+};
+
+class Pies : public Zwierze {
+public:
+    void dajGlos() const override { std::cout << "Hau hau!\n"; }
+};
+
+class Kot : public Zwierze {
+public:
+    void dajGlos() const override { std::cout << "Miau!\n"; }
+};
+
+int main() {
+    Zwierze *zwierze1 = new Pies();
+    Zwierze *zwierze2 = new Kot();
+
+    // Użycie typeid do sprawdzenia typu
+    std::cout << "Typ zwierze1: " << typeid(*zwierze1).name() << std::endl; // Pies
+    std::cout << "Typ zwierze2: " << typeid(*zwierze2).name() << std::endl; // Kot
+
+    // Użycie dynamic_cast do rzutowania
+    Pies* pies = dynamic_cast<Pies*>(zwierze1);
+    if (pies) {
+        pies->dajGlos(); // Hau hau!
+    }
+
+    Kot* kot = dynamic_cast<Kot*>(zwierze2);
+    if (kot) {
+        kot->dajGlos(); // Miau!
+    }
+
+    delete zwierze1;
+    delete zwierze2;
+
+    return 0;
+}
+
+```
 
 # IV Dziedziczenie wielokrotne
 

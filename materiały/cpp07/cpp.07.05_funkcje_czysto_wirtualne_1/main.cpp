@@ -15,14 +15,14 @@ int main(int argc, char * argv[])
 	
 	//mo�emy u�y� referencji
 	Shape& RefShape = aCirc;
+	//mo�emy u�y� wskaznika
+	Shape* Shape;
 
 	cout << "Pole RefShape (aCirc) = " << RefShape.Pole() << endl;
 	RefShape.Rys();
 
 	cout << "-------------------------------------\n";
 	
-	//mo�emy u�y� wskaznika
-	Shape* Shape;
 	Shape = &aRec;
 	cout << "Pole Shape* (aRec) = " << Shape->Pole() << endl;
 	Shape->Rys();
