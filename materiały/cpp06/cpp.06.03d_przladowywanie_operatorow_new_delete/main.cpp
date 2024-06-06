@@ -13,7 +13,7 @@ void operator delete(void* ptr) noexcept //c++11
     std::free(ptr);
 }
 
-/////////////////////////////////////////////////////////
+
 int main()
 {
 	int* p2 = new int[10];

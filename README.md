@@ -3,7 +3,9 @@
 Przeładowanie operatora dokonuje się definiując własną
 funkcję o nazwie operatorX, gdzie X oznacza symbol
 interesującego nas operatora:
+
 -Może być funkcją składową
+
 -Może być globalną funkcją – wyjątki
 
 Natomiast następujące operatory nie mogą być
@@ -38,12 +40,15 @@ const na końcu funkcji (czyli const { /_ ... _/ }) oznacza, że sama funkcja ni
 Dlaczego to jest ważne?
 
 -Bezpieczeństwo: Zapobiega przypadkowym modyfikacjom obiektów, co jest szczególnie istotne w przypadku przekazywania obiektów jako argumentów do funkcji.
+
 -Optymalizacja: Kompilator może lepiej zoptymalizować kod, gdy wie, że funkcja nie modyfikuje stanu obiektu.
+
 -Spójność: Używanie const tam, gdzie to możliwe, poprawia czytelność kodu i ułatwia zrozumienie jego działania.
 
 ## Funkcja operatorowa jako funkcja globalna
 
 -Nie musi być funkcją zaprzyjaźnioną ale wtedy korzystamy z getterów
+
 -Jeżeli wymaga dostępu do zmiennych prywatnych
 to musi być zaprzyjaźniona
 
@@ -57,11 +62,15 @@ to musi być zaprzyjaźniona
 
 -Generowany automatyczne przez kompilator, tak że
 przepisuje obiekt składnik po składniku
+
 -Nie jest generowany automatycznie w sytuacjach:
 ◼ Jeżeli klasa ma składnik const
+
 ◼ Jeżeli klasa ma składnik będący referencją
+
 ◼ Jeżeli klasa ma składową klasę, w której operator przypisania
 jest prywatny
+
 ◼ Jeżeli klasa ma klasę podstawową z prywatnym operatorem
 
 ```cpp
@@ -82,7 +91,7 @@ Point& Point::operator=(const Point& K)
 
 ```
 
-Czesc destrukturowa i konstrukturowa
+Czesc destrukturowa i konstrukturowa:
 
 ```cpp
   // czeœæ destruktorowa
@@ -96,7 +105,7 @@ Czesc destrukturowa i konstrukturowa
 
 ```
 
-Wykorzystując priv ctor i dtor
+Wykorzystując priv ctor i dtor:
 
 ```cpp
 class Point
@@ -149,13 +158,21 @@ private:
 
 -Funkcja wywoływana jest kiedy pojawia się po lewej stronie =, a po jego prawe stoi
 rvalue
+
 -„Kradnie” zasoby obiektu stojącego po prawej stronie : np. dla std::string zostawia po prawej stronie obiekt pusty
+
 -Generowana automatycznie w sytuacji kiedy:
+
 ❑ Nie ma konstruktora przenoszalnego (niedomyślnego)
+
 ❑ Nie ma kopiującego operatora=
+
 ❑ Nie ma destruktora
+
 ❑ Nie ma konstruktora kopiującego (niedomyślnego)
+
 ❑ Generowany jest wtedy publiczny i inline T& T::operator=(T&&)
+
 -Jeżeli jest „trywialny” wykorzystuje do przenoszenia std::memmove
 
 ```cpp
@@ -262,8 +279,11 @@ tab[i] = a;
 ### Operator ()
 
 -Może przyjmować dowolną liczbę parametrów
+
 -Może posłużyć do indeksowanie wielowymiarowych tablic
+
 -Może też upraszczać zapis, nie musimy wywoływać funkcji tylko wystarczy sam operator ()
+
 -Bardzo przydatny operator przy wykorzystaniu funktorów zalgorytmami STL
 
 ```cpp
@@ -321,25 +341,190 @@ int main()
     return 0;
 }
 ```
-  //TODO przykłady
+
+```cpp
+int main() {
+
+	std::vector<std::function<void(int)>> vec;
+	std::vector<std::function<void()>> vec2;
+
+	vec.emplace_back(F1());
+	vec.emplace_back(F2());
+	vec.emplace_back(F3());
+
+//emplace_back: Dodaje elementy do wektora.
+//F1(), F2(), F3(): Tworzone są tymczasowe obiekty struktur (funktory), które są od razu dodawane do wektora vec.
+	int i = 0;
+	for(auto& el : vec) {
+		el(++i);
+		vec2.emplace_back(std::bind(el, i));
+	}
+//std::bind(el, i): Tworzymy nowy obiekt funkcyjny (binder) za pomocą funkcji std::bind. Ten binder "zapamiętuje" funkcję el oraz aktualną wartość i. Gdy binder zostanie wywołany później, automatycznie wywoła funkcję el z zapamiętaną wartością i
+	vec2.push_back(F4());
+	vec2.emplace_back(F5());
+	for(auto& el : vec2)
+		el();
+
+}
+
+```
+
+Functional z refem:
+
+```cpp
+operator int() {
+    return sum;
+}
+//Ten operator jest wywoływany niejawnie (automatycznie) przez kompilator w sytuacjach, gdy oczekuje się wartości typu int, a podawany jest obiekt typu Sum.
+//Przekształca obiekt typu suma na int, żeby nie trzeba było przeładowywać <<
+
+int main()
+{
+
+	Sum s{10};
+	std::cout << "Suma = " << s << std::endl;
+
+	for (int i = 0; i < 5; ++i)	{
+		s(i);
+		std::cout << "Suma = " << s << std::endl;
+	}
+
+	{
+		std::function<void(int)> f_s = s;
+		f_s(100);
+		std::cout << "Suma f_s = " << s << std::endl;
+	}
+	{
+		std::function<void(int)> f_s = std::ref(s);
+		f_s(100);
+		std::cout << "Suma std::ref f_s = " << s << std::endl;
+	}
+}
+//Pierwszy blok {}:
+//std::function<void(int)> f_s = s;: Tworzy obiekt f_s typu std::function, który przechowuje kopię obiektu s.
+//f_s(100);: Wywołuje funkcję f_s (czyli kopię s), dodając 100 do sumy kopii.
+//std::cout << "Suma f_s = " << s << std::endl;: Wyświetla wartość s. Ponieważ f_s była kopią, wartość oryginalnego s pozostaje niezmieniona.
+
+//Drugi blok {}:
+//std::function<void(int)> f_s = std::ref(s);: Tworzy obiekt f_s typu std::function, który przechowuje referencję do obiektu s.
+//f_s(100);: Wywołuje funkcję f_s (czyli referencję do s), dodając 100 do oryginalnej sumy w s.
+//std::cout << "Suma std::ref f_s = " << s << std::endl;: Wyświetla wartość s, która teraz jest zwiększona o 100.
+
+```
 
 ### Operator ->
 
 -Rzadko używany
+
 -Przydaje się gdy piszemy klasę, której obiekty pełnią rolę podobną do wskaźników
+
 -Wykorzystany między innymi przy tworzeniu klasy unique_ptr z STL-a
 
+```cpp
+class WskaznikInteligentny {
+public:
+    WskaznikInteligentny(int* ptr) : ptr_(ptr) {}
+
+    int* operator->() {
+        std::cout << "Operator -> wywołany\n";
+        return ptr_;
+    }
+
+private:
+    int* ptr_;
+};
+
+int main() {
+    int liczba = 42;
+    WskaznikInteligentny sprytnyWskaznik(&liczba);
+
+    std::cout << sprytnyWskaznik->operator->(); // Wypisze "Operator -> wywołany\n42"
+}
+
+//Wyrażenie sprytnyWskaznik->operator->() jest równoważne sprytnyWskaznik->(), co wywołuje przeciążony operator ->.
+//Operator zwraca wskaźnik do liczba, który jest następnie używany do wypisania wartości 42.
+
+```
+
 ### Operatory pre i post ++ --
-  //TODO
+
+Argument int w operatorach postinkrementacji i postdekrementacji jest jedynie sztuczką składniową, która pozwala kompilatorowi odróżnić je od operatorów preinkrementacji i predekrementacji. Ten argument jest zwykle ignorowany wewnątrz funkcji.
+
+Obiekty tymczasowe są tworzone w operatorach postinkrementacji i postdekrementacji, aby zachować semantykę tych operatorów. Operator postinkrementacji (x++) powinien: zwrócić oryginalną wartość zmiennej x i zwiększyć wartość zmiennej x o jeden.
+
+```cpp
+
+//jako składowe
+
+Point& operator++() {
+    ++_a; ++_b;
+    return *this;
+  }
+
+
+//w post jest tworzony obiekt tymczasowy
+  Point operator++(int){
+    Point tmp = *this;
+    ++_a; ++_b;
+    return tmp;
+  }
+
+//jako globalne
+
+Point& operator--(Point& K)
+{ --K._a; --K._b; return K; }
+
+Point operator--(Point& K, int)
+{ Point tmp = K;  --K._a; --K._b; return tmp; }
+
+```
+
 ## Operatory << i >>
 
--Przy przeładowywaniu tych operatorów w stosunkudo klasy iostream możemy je zdefiniować tylko jako globalne funkcje
+-Przy przeładowywaniu tych operatorów w stosunkudo klasy iostream możemy je zdefiniować tylko
+jako globalne funkcje
+
 -Funkcja operatorowa musi pracować na zmiennych lub metodach globalnych
+
 -Ewentualnie musi być zaprzyjaźniona z naszą klasą, jeżeli ma pracować na zmiennych
 prywatnych
 
 ## Operatory new i delete
-  //TODO
+
+W stosunku do klas funkcje przeładowujące te operatory są zawsze typu static, nawet jeśli tego nie zadeklarujemy.
+
+Przydają się kiedy chcemy uzyskać jakąś dodatkową funkcjonalność np. statystykę.
+
+Tworzymy obiekty w predefiniowanej wcześniej pamięci.
+
+Używamy niestandardowej biblioteki do tworzenia nowych obiektów.
+
+```cpp
+void* operator new(std::size_t sz) {
+    std::cout << "global op new called, size = " << sz << std::endl;
+    return std::malloc(sz);
+}
+void operator delete(void* ptr) noexcept //c++11
+{
+    std::cout << "global op delete called" << std::endl;
+    std::free(ptr);
+}
+//W kodzie, który przedstawiłeś, przeładowany jest jedynie globalny operator new, a nie new[]. Pomimo tego, kod działa poprawnie dla tablic int. Wynika to z faktu, że standardowa implementacja operatora new[] wewnętrznie wywołuje operator new, aby zaalokować odpowiednią ilość pamięci dla tablicy.
+
+int main()
+{
+	int* p2 = new int[10];
+	delete [] p2;
+
+	std::vector<char> v(1213);
+}
+//global op new called, size = 40
+//global op delete called
+//global op new called, size = 1213
+//global op delete called
+
+
+```
 
 ## Dodatkowe informacje z działu
 
@@ -359,13 +544,15 @@ Kompilator może dokonać agresywniejszych optymalizacji kodu, wiedząc, że fun
 
 std::assert to makro w C++, które służy do sprawdzania poprawności założeń w kodzie podczas jego wykonywania. Działa ono w następujący sposób: sprawdza warunek jeżeli jest fałszywy wywołuje std::abort() i kończy program oraz wypisuje numer linii
 
+Słowo kluczowe inline jest wskazówką dla kompilatora, że funkcja powinna być w miarę możliwości wstawiana bezpośrednio w miejscu wywołania, zamiast być wywoływana przez zwykły mechanizm wywołania funkcji. To może przynieść korzyści w wydajności, zwłaszcza dla małych, często wywoływanych funkcji, takich jak operator konwersji. Decyzja o tym, czy funkcja zostanie faktycznie wstawiona inline, należy do kompilatora. Może on zignorować wskazówkę inline, jeśli uzna to za bardziej optymalne (np. dla dużych funkcji).
+
 # II Dziedziczenie
 
 -Dziedziczenie to technika umożliwiająca zdefiniowanie nowej klasy z wykorzystaniem klasy już istniejącej
 -Nowa klasa staje się automatycznie nowym typem danych
 -Klasę z której dziedziczymy nazywamy klasą bazową lub podstawową
 -Klasa która odziedzicza składniki i metody po innej klasie nazywana jest klasą pochodną
-  //TODO
+//TODO
 
 ## Dodatkowe informacje z działu
 
@@ -390,9 +577,6 @@ std::assert to makro w C++, które służy do sprawdzania poprawności założe�
 ## Dodatkowe informacje z działu
 
 # VIII std::vector, std::array
-
-
-
 
 ## Dodatkowe informacje z działu
 
