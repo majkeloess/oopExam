@@ -985,7 +985,259 @@ public:
 
 # IV Dziedziczenie wielokrotne
 
-## Dodatkowe informacje z działu
+Klasa może dziedziczyć po więcej niż jednej
+klasie bazowej, wtedy mówimy o dziedziczeniu
+wielokrotnym. Tego typu dziedziczenie jest rzadziej stosowane, zaletą jego jest możliwość połączenia ze sobą
+zupełnie niezależnych od siebie klas
+
+```cpp
+int main(int argc, char * argv[])
+{
+	using namespace std;
+	using namespace OOP;
+
+	Amf aAmf(10,100);
+	aAmf.printTraveled();
+
+	Auto& refAuto = aAmf;
+	refAuto.printTraveled();
+
+	Lodz* ptrLodz = &aAmf;
+	ptrLodz->printTraveled();
+
+}
+
+```
+
+Kluczowym elementem polimorfizmu są wirtualne funkcje. W Twoim kodzie, metoda printTraveled() jest zadeklarowana jako virtual w każdej z klas (Lodz, Auto, Amf). Oznacza to, że podczas wywołania tej metody, C++ zdecyduje w czasie wykonywania, która implementacja metody powinna zostać użyta, na podstawie rzeczywistego typu obiektu, a nie typu wskaźnika lub referencji.
+
+W Twoim przypadku:
+
+aAmf.printTraveled(): Wywołanie metody na obiekcie Amf bezpośrednio spowoduje użycie metody printTraveled() z klasy Amf.
+refAuto.printTraveled(): Referencja refAuto jest typu Auto&, ale odnosi się do obiektu Amf. Dzięki polimorfizmowi, wywołanie metody na tej referencji również spowoduje użycie metody printTraveled() z klasy Amf.
+ptrLodz->printTraveled(): Wskaźnik ptrLodz jest typu Lodz\*, ale wskazuje na obiekt Amf. Podobnie jak w poprzednim przypadku, polimorfizm sprawia, że zostanie wywołana metoda printTraveled() z klasy Amf.
+
+## Konstruktory przy dziedziczeniu wielokrotnym
+
+Konstruktor klasy pochodnej na liście
+inicjalizacyjnej może zawierać wywołania
+konstruktorów swoich bezpośrednich klas
+podstawowych
+
+```cpp
+class C : public A, public B {
+C() : B(), A() {...}
+}
+```
+
+Kolejność wywoływania konstruktorów uzależniona
+jest od kolejności umieszczenia nazw klas
+podstawowych na liście pochodzenia
+
+## Wieloznaczność przy dziedziczeniu wielokrotnym
+
+Ten kod demonstruje problem niejednoznaczności nazw, który może wystąpić w wielodziedziczeniu. Gdy klasa pochodna dziedziczy po kilku klasach bazowych, które mają metody o tych samych nazwach, kompilator nie wie, którą metodę wybrać. Możesz rozwiązać ten problem, używając operatora zakresu (::) do jawnego wskazania, którą metodę chcesz wywołać. Dodatkowo, klasa pochodna nie dziedziczy prywatnych składowych klas bazowych.
+
+```cpp
+
+
+int main(int argc, char * argv[])
+{
+	using namespace std;
+	using namespace OOP;
+
+	Amf aAmf;
+
+	//BLAD bo nie wiadomo, ktora funkcje uzyc z Auto czy z Lodz
+	// aAmf.travel(10);
+
+	//musimy uzyc operator zakresu
+	aAmf.Auto::travel(100);
+	aAmf.Lodz::travel(10);
+
+	aAmf.printTraveled();
+
+	//BLAD bo nie wiadomo, ktora funkcje uzyc z Auto czy z Lodz
+	//pomimo tego ze nia ma dostepu do fun z Auto
+	// aAmf.fun();
+
+}
+```
+
+## Wieloznaczność, a pokrewieństwo
+
+Bliższe pokrewieństwo
+usuwa wieloznaczność, Matka jest znacząco
+krótsza niż do
+identycznego składnika
+w klasie Dziadek
+
+Jeżeli mimo wszystko musimy posłużyć się kwalifikatorem
+zakresu to nie musimy podawać dokładnego określenia, w
+której klasie interesujący nas obiekt się znajduje. Wystarczy podać zakres od którego zaczną się poszukiwania:
+
+```cpp
+A::x == C::x
+D::x == E::x
+F::x == G::x
+```
+
+## Wirtualne klasy bazowe
+
+Na liście bezpośrednich przodków dana klasa może pojawić
+się tylko i wyłącznie jeden raz, Ale nic nie stoi na przeszkodzie, żeby klasa znalazła się
+wielokrotnie na wyższym poziomie dziedziczenia
+
+W przypadku drugiego grafu dostęp do składników nie jest
+jednoznaczny ([./images/virtual_base.png](virtbase)).
+
+Istnieje jednak stosunkowo proste rozwiązanie na
+duplikowanie informacji w klasie pochodnej, podstawowa klasa wirtualna. Słowo virtual pojawia się na liście dziedziczenia przed nazwą klasy. Deklarowanie dziedziczenia wirtualnego:
+
+[./images/virtual_base2.png](virtbase2)
+
+```cpp
+class samochod: virtual public srodek_trans
+{...};
+class lodz: virtual public srodek_trans
+{...};
+class amfibia: public samochod, public lodz
+{...};
+```
+
+Otrzymujemy zmniejszoną klasę amfibia bez duplikatów, Nie ma ryzyka niejednoznaczności, mimo iż do składników
+możemy dostać się na dwa sposoby.
+
+## Dziedziczenie wirtualne i niewirtualne jednocześnie
+
+[./images/virtual_base3.png](virtbase3)
+
+Ta sama klasa może być odziedziczona wirtualnie i
+niewirtualnie. W pokazanym przykładzie środek
+amfibia_lepsza posiada:
+
+1. Wspólny zestaw składników dla wszystkich wirtualnych dziedziczeń.
+2. Oraz osobny zestaw odziedziczony w zwykły sposób.
+
+## Klasa finalna
+
+```cpp
+
+//reszta klas ...
+
+
+class Amf : public Auto, public Lodz
+{
+public:
+  Amf(int d = 0) : Trans(d)
+	{ std::cout << "Konstruktor Amf\n"; }
+
+	~Amf()
+  { std::cout << "Destruktor Amf\n"; }
+
+
+	void printTraveled()
+	{
+      std::cout << "Amfibia pokonala "
+                << m_km << " km" << std::endl;
+  }
+
+	void travel(int d)
+	{	Auto::travel(d);	}
+
+	virtual void travelAsAuto(int d)
+	{ Auto::travel(d); }
+
+	virtual void travelAsLodz(int d)
+	{ Lodz::travel(d); }
+};
+
+
+int main(int argc, char * argv[])
+{
+	using namespace std;
+
+	Amf aAmf(1000);
+
+	aAmf.travel(100);
+	aAmf.travelAsAuto(10);
+	aAmf.travelAsLodz(1);
+
+	aAmf.printTraveled();
+
+}
+
+// Konstruktor Trans
+// Konstruktor Auto
+// Konstruktor Lodz
+// Konstruktor Amf
+// Amfibia pokonala 1111 km
+// Destruktor Amf
+// Destruktor Lodz
+// Destruktor Auto
+// Destruktor Trans
+
+
+```
+
+Klasa pochodna Amf:
+
+Dziedziczy po Auto i Lodz, co oznacza, że jest jednocześnie samochodem i łodzią (amfibią).
+Amf(int d = 0) : Trans(d): Konstruktor klasy Amf wywołuje konstruktor klasy bazowej Trans z argumentem d.
+virtual void printTraveled(): Przeciąża metodę printTraveled() z klasy bazowej, aby wypisywać informacje o przebytych kilometrach przez amfibię.
+void travel(int d): Przeciąża metodę travel(), delegując wywołanie do Auto::travel(d). Oznacza to, że domyślnie podróż amfibii jest traktowana jako podróż samochodem.
+virtual void travelAsAuto(int d) i virtual void travelAsLodz(int d): Te metody pozwalają na jawne określenie, czy podróż ma być traktowana jako podróż samochodem czy łodzią.
+W KONSTRUKTORZE AMF JEST WYWOŁANIE KLASY TRANS.
+
+## Kiedy dziedziczyć, a kiedy osadzać składniki (klasy)
+
+Dziedziczenie wybieramy w sytuacji kiedy dany
+obiekt jest rodzajem innego. Np. kwadrat jest rodzajem figury geometrycznej,
+samochód jest rodzajem pojazdu.
+
+Zawieranie obiektów składowych używamy w
+sytuacji, gdy jeden obiekt składa się z innych
+obiektów. Np. samochód składa się (miedzy innymi) z czterech kół,
+radio składa się z tranzystorów
+
+Nie zawsze jest oczywiste, czy lepsze jest
+dziedziczenie, czy też może zawieranie.
+
+```cpp
+// Dziedziczenie
+class FiguraGeometryczna { /* ... */ };
+class Kwadrat : public FiguraGeometryczna { /* ... */ };
+
+// Zawieranie (kompozycja)
+class Samochod {
+public:
+    Silnik silnik;
+    Nadwozie nadwozie;
+    Kolo kola[4];
+};
+
+```
+
+## Aspekty dziedziczenia
+
+Klasa pochodna powinna przesłaniać tylko te funkcje, które
+zostały zadeklarowane jako wirtualne w klasie podstawowej
+
+Jeżeli klasa pochodna ma zostać klasą bazową to powinna
+także wszystkie funkcje, które mogą być przysłonięte
+deklarować jako wirtualne
+
+Przesłaniane funkcje powinny mieć te same domyślne
+wartości parametrów w klasie pochodnej, co w klasie
+podstawowej
+
+Klasa bazowa oczywiście powinna posiadać wirtualny
+destruktor
+
+Jedynie publiczne dziedziczenie określa relacje
+generalizacji. Pozostałe przypadki dziedziczenia
+umożliwiają tylko wykorzystanie już istniejącego kodu.
+
 
 # V Szablony funkcji i klas
 
@@ -1005,4 +1257,4 @@ public:
 
 push_back: dodaje istniejący obiekt do wektora, potencjalnie go kopiując lub przenosząc.
 emplace_back: konstruuje obiekt bezpośrednio w wektorze, unikając kopiowania/przenoszenia.
-Zasada ogólna: Używaj emplace_back, chyba że masz już istniejący obiekt do dodania.
+Zasad a ogólna: Używaj emplace_back, chyba że masz już istniejący obiekt do dodania.
