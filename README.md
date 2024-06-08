@@ -1312,6 +1312,21 @@ auto add(T t, U u) -> decltype(t + u) {
 
 W tym przypadku -> decltype(t + u) jest używane do określenia typu zwracanego przez funkcję szablonową add. decltype(t + u) oznacza "typ wyniku wyrażenia t + u". Dzięki temu funkcja może zwracać różne typy w zależności od typów argumentów T i U
 
+```cpp
+struct SomeStruct
+{
+  auto FuncName(int x, int y) -> int; // c++11
+  // auto FuncName(int x, int y);        // c++14
+};
+
+auto SomeStruct::FuncName(int x, int y) -> int // c++11
+// auto SomeStruct::FuncName(int x, int y)        // c++14
+{
+  return x + y;
+}
+
+```
+
 ### alignof
 
 Operator alignof zwraca wymagane wyrównanie typu lub obiektu. Na przykład, alignof(int) zwróci 4 na większości platform 64-bitowych, ponieważ typ int zazwyczaj wymaga wyrównania 4-bajtowego.
@@ -1344,6 +1359,46 @@ int main() {
 
 ```
 
+### static_assert
+
+Asercje statyczne (static_assert) w C++ to mechanizm sprawdzania warunków w czasie kompilacji programu. Jeśli warunek w asercji statycznej nie jest spełniony, kompilacja zostaje przerwana,
+
+```cpp
+
+template <class T>
+void swap(T& a, T& b)
+{
+    static_assert(std::is_copy_constructible<T>::value,
+                  "Swap requires copying");
+    static_assert(std::is_nothrow_move_constructible<T>::value
+               && std::is_nothrow_move_assignable<T>::value,
+                  "Swap may throw");
+    auto c = b;
+    b = a;
+    a = c;
+}
+```
+
+Kluczowym elementem są tutaj dwa static_assert:
+
+std::is_copy_constructible<T>::value: Sprawdza, czy typ T posiada konstruktor kopiujący. Jeśli nie, kompilator wygeneruje błąd z komunikatem "Swap requires copying".
+std::is_nothrow_move_constructible<T>::value && std::is_nothrow_move_assignable<T>::value: Sprawdza, czy typ T posiada konstruktor przenoszący i operator przypisania przenoszącego, które nie rzucają wyjątków. Jeśli któryś z nich może rzucić wyjątek, kompilator wygeneruje błąd z komunikatem "Swap may throw".
+
+```cpp
+template <class T>
+struct data_structure
+{
+    static_assert(std::is_default_constructible<T>::value,
+                  "Data Structure requires default-constructible elements");
+};
+```
+
+Zawiera ona asercję statyczną:
+
+std::is_default_constructible<T>::value: Sprawdza, czy typ T posiada konstruktor domyślny. Jeśli nie, kompilator wygeneruje błąd z komunikatem "Data Structure requires default-constructible elements".
+
+### using
+
 ## Pętla for w zakresie
 
 Operator alignof zwraca wymagane wyrównanie typu lub obiektu. Na przykład, alignof(int) zwróci 4 na większości platform 64-bitowych, ponieważ typ int zazwyczaj wymaga wyrównania 4-bajtowego.
@@ -1362,7 +1417,87 @@ for (int& n : a)
 
 W tym przypadku pętla for iteruje po referencjach do elementów wektora a. Oznacza to, że zmienna n w każdej iteracji jest aliasem (inną nazwą) dla oryginalnego elementu w wektorze. Zwiększenie wartości n (++n) bezpośrednio modyfikuje oryginalne wartości przechowywane w wektorze a.
 
-## Dodatkowe informacje z działu
+## std::initializer_list
+
+Jest to lekki obiekt reprezentujący tablicę elementów określonego typu. Nie jest to kontener w pełnym tego słowa znaczeniu (jak std::vector czy std::array), ale zapewnia podobne funkcjonalności, takie jak dostęp do elementów poprzez iteratory (begin(), end()) oraz pobieranie rozmiaru (size()).
+
+```cpp
+    auto al = {10, 11, 12}; // special rule for auto
+    std::cout << "The list bound to auto has size() = " << al.size() << '\n';
+
+```
+
+Jeżeli stworzymy zmienną auto z listą 3 el, zostanie ona zamieniona na initializer_list i będziemy mogli wywołać metodę .size()
+
+```cpp
+
+template <class T>
+struct S
+{
+    std::vector<T> v;
+    S(std::initializer_list<T> l) : v(l)
+    {
+        std::cout << "constructed with a " << l.size() << "-element list\n";
+    }
+    void append(std::initializer_list<T> l)
+    {
+        v.insert(v.end(), l.begin(), l.end());
+    }
+    std::pair<const T *, std::size_t> c_arr() const
+    {
+        return {&v[0], v.size()}; // copy list-initialization in return statement
+                                  // this is NOT a use of std::initializer_list
+    }
+};
+```
+
+std::vector<T> v;: Składowa v, będąca wektorem przechowującym elementy typu T. To jest miejsce, gdzie będą przechowywane dane.
+S(std::initializer_list<T> l) : v(l): Konstruktor struktury S. Przyjmuje listę inicjalizacyjną l, która jest używana do inicjalizacji wektora v. Wypisuje komunikat informujący o rozmiarze listy.
+void append(std::initializer_list<T> l): Metoda dodająca elementy z listy inicjalizacyjnej l na koniec wektora v za pomocą metody v.insert().
+std::pair<const T\*, std::size_t> c_arr() const: Metoda zwracająca parę wartości: wskaźnik na początek tablicy (&v[0]) oraz rozmiar wektora (v.size()). To pozwala na dostęp do danych wektora w sposób podobny do tablicy w stylu C.
+
+```cpp
+template <typename T>
+void templated_fn(T) {}
+
+//    templated_fn({1, 2, 3}); // compiler error! "{1, 2, 3}" is not an expression,
+                             // it has no type, and so T cannot be deduced
+    templated_fn<std::initializer_list<int>>({1, 2, 3}); // OK
+    templated_fn<std::vector<int>>({1, 2, 3});
+
+```
+
+Komentarz objaśnia, że wywołanie templated_fn({1, 2, 3}); spowodowałoby błąd kompilacji, ponieważ lista inicjalizacyjna nie jest wyrażeniem i nie ma określonego typu, więc kompilator nie może wydedukować typu T.
+templated_fn<std::initializer_list<int>>({1, 2, 3});: Wywołanie templated_fn z jawnie podanym typem std::initializer_list<int>.
+templated_fn<std::vector<int>>({1, 2, 3});: Wywołanie templated_fn z jawnie podanym typem std::vector<int>. Lista inicjalizacyjna jest automatycznie konwertowana na wektor.
+
+## std::pair
+
+Jest to prosty kontener przechowujący dwa elementy różnych typów. Elementy te są dostępne jako publiczne składowe first i second.
+
+Tworzenie: Można utworzyć obiekt std::pair na kilka sposobów:
+
+Podając wartości dla obu elementów: std::pair<int, std::string> para(1, "jeden");
+Używając domyślnego konstruktora: std::pair<int, std::string> para; (elementy będą zainicjalizowane wartościami domyślnymi)
+Używając konstruktora kopiującego lub przenoszącego: std::pair<int, std::string> para2(para);
+Od C++11, używając listy inicjalizacyjnej: std::pair<int, std::string> para3 = {1, "jeden"};
+
+```cpp
+std::pair<std::string, int> getPerson() {
+    return {"Jan Kowalski", 30};
+}
+
+auto [imie, wiek] = getPerson(); // Od C++17, structured binding
+std::cout << imie << " ma " << wiek << " lat.\n";
+```
+
+## Lambda
+
+//TODO
+
+## Async
+
+//TODO
 
 # VI Wyjątki
 
