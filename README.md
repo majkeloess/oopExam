@@ -1238,8 +1238,129 @@ Jedynie publiczne dziedziczenie określa relacje
 generalizacji. Pozostałe przypadki dziedziczenia
 umożliwiają tylko wykorzystanie już istniejącego kodu.
 
+# V C++11
 
-# V Szablony funkcji i klas
+## Najważniejsze nowości z „core”:
+
+◼ Nowe słowa kluczowe
+
+◼ Nowe typy fundamentalne
+
+◼ Nowa pętla for
+
+◼ Silne typy wyliczeniowe
+
+◼ Referencja do r-wartości
+
+◼ Tradycyjne Struktury Danych
+
+◼ Listy inicjalizacyjne
+
+◼ Usprawnienie konstruowania obiektów
+
+◼ Nowa składnia funkcji
+
+◼ Wyrażenia lambda
+
+◼ Statyczne asercje
+
+◼ Operator sizeof...()
+
+◼ Jawne operatory konwertujące
+
+◼ Usunięcie problemu trójkątnego nawiasu
+
+◼ Szablony ze zmienną listą parametrów
+
+◼ Nowe literały łańcuchowe
+
+◼ Raw string literal
+
+◼ Literały definiowane przez użytkownika
+
+◼ Identyfikatory override and final
+
+## Nowe słowa kluczowe
+
+### decltype
+
+decltype to operator w języku C++, który został wprowadzony w standardzie C++11. Jego głównym zadaniem jest określenie typu wyrażenia w czasie kompilacji. Innymi słowy, decltype pozwala uzyskać typ zmiennej, który jest taki sam jak typ podanego wyrażenia.
+
+```cpp
+int liczba = 5;
+decltype(liczba) innaLiczba = 10;  // innaLiczba ma typ int
+
+double pi = 3.14159;
+decltype(pi) obwod = 2 * pi * 5;  // obwod ma typ double
+
+std::string tekst = "Hello";
+decltype(tekst) innyTekst = "World";  // innyTekst ma typ std::string
+
+int tablica[5] = {1, 2, 3, 4, 5};
+decltype(tablica[2]) element = tablica[2];  // element ma typ int
+
+```
+
+### auto
+
+```cpp
+template <typename T, typename U>
+auto add(T t, U u) -> decltype(t + u) {
+    return t + u;
+}
+```
+
+W tym przypadku -> decltype(t + u) jest używane do określenia typu zwracanego przez funkcję szablonową add. decltype(t + u) oznacza "typ wyniku wyrażenia t + u". Dzięki temu funkcja może zwracać różne typy w zależności od typów argumentów T i U
+
+### alignof
+
+Operator alignof zwraca wymagane wyrównanie typu lub obiektu. Na przykład, alignof(int) zwróci 4 na większości platform 64-bitowych, ponieważ typ int zazwyczaj wymaga wyrównania 4-bajtowego.
+
+### nullptr
+
+Jest to preferowany sposób reprezentowania wskaźnika zerowego w nowoczesnym C++.
+Ma ściśle określony typ std::nullptr_t.
+Może być niejawnie konwertowany na dowolny typ wskaźnika.
+Jest bezpieczniejszy niż NULL, ponieważ unikamy niejednoznaczności typów.
+
+### constexpr
+
+constexpr to słowo kluczowe w C++, które wprowadzono w standardzie C++11. Jego głównym celem jest umożliwienie wykonywania obliczeń w czasie kompilacji, zamiast w czasie wykonywania programu.
+
+Obliczenia w czasie kompilacji: Obliczenia wykonywane w czasie kompilacji nie obciążają programu podczas jego działania, co może przyspieszyć jego działanie, szczególnie jeśli obliczenia są złożone lub powtarzane wiele razy.
+
+Kontrola typów w czasie kompilacji: constexpr wymusza, aby wyrażenia były poprawne pod względem typów już w czasie kompilacji. To pomaga wykrywać błędy wcześniej i zapobiegać problemom w czasie wykonywania.
+
+```cpp
+
+constexpr int square(int x) {
+    return x * x;
+}
+
+int main() {
+    constexpr int result = square(5); // Obliczenie w czasie kompilacji
+    int arr[result]; // Tablica o rozmiarze stałym (25)
+}
+
+```
+
+## Pętla for w zakresie
+
+Operator alignof zwraca wymagane wyrównanie typu lub obiektu. Na przykład, alignof(int) zwróci 4 na większości platform 64-bitowych, ponieważ typ int zazwyczaj wymaga wyrównania 4-bajtowego.
+
+```cpp
+for (int n : a)
+    ++n;
+```
+
+W tym przypadku pętla for iteruje po kopiach elementów wektora a. Oznacza to, że zmienna n w każdej iteracji otrzymuje kopię wartości elementu z wektora. Zwiększenie wartości n (++n) nie ma wpływu na oryginalne wartości przechowywane w wektorze a.
+
+```cpp
+for (int& n : a)
+    ++n;
+```
+
+W tym przypadku pętla for iteruje po referencjach do elementów wektora a. Oznacza to, że zmienna n w każdej iteracji jest aliasem (inną nazwą) dla oryginalnego elementu w wektorze. Zwiększenie wartości n (++n) bezpośrednio modyfikuje oryginalne wartości przechowywane w wektorze a.
 
 ## Dodatkowe informacje z działu
 
