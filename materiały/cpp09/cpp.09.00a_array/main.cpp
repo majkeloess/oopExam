@@ -12,7 +12,7 @@ int main()
 
     using array_int_4_t = std::array<int, 4>;
     array_int_4_t a3 = {1, 2, 3};  // never required after =
-
+    a1.
     a1 = a2; //OK
     // a1 = a3; //Compile error
 

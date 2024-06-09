@@ -1399,6 +1399,26 @@ std::is_default_constructible<T>::value: Sprawdza, czy typ T posiada konstruktor
 
 ### using
 
+```cpp
+  using func = void (*) (int,int);
+```
+
+func staje się aliasem dla typu wskaźnika do funkcji przyjmującej dwa argumenty typu int i zwracającej void.
+
+```cpp
+  template<class T> using ptr = T*;
+```
+
+Tutaj definiujemy alias szablonu typu ptr, który reprezentuje wskaźnik na typ T. Dzięki temu możemy prościej deklarować wskaźniki: ptr<int> x; zamiast int\* x;
+
+```cpp
+template<typename T>
+struct Container {
+    using value_type = T;
+};
+
+```
+
 ## Pętla for w zakresie
 
 Operator alignof zwraca wymagane wyrównanie typu lub obiektu. Na przykład, alignof(int) zwróci 4 na większości platform 64-bitowych, ponieważ typ int zazwyczaj wymaga wyrównania 4-bajtowego.
@@ -1493,24 +1513,201 @@ std::cout << imie << " ma " << wiek << " lat.\n";
 
 ## Lambda
 
-//TODO
+Wyrażenia lambda (ang. lambda expressions) to sposób definiowania anonimowych funkcji (funkcji bez nazwy) bezpośrednio w miejscu, gdzie są potrzebne. Są one szczególnie przydatne w sytuacjach, gdy potrzebujesz krótkiej funkcji, która będzie użyta tylko raz lub kilka razy w konkretnym miejscu kodu.
+
+```cpp
+[capture list] (parameter list) mutable -> return type {
+    // Ciało funkcji
+}
+
+```
+
+W wyrażeniach lambda w C++, słowo kluczowe mutable pozwala na modyfikację zmiennych przechwyconych przez wartość wewnątrz ciała lambdy.
+
+```cpp
+int a = 5;
+auto lambda = [a]() {
+    a = 10; // Błąd kompilacji: 'a' jest const
+};
+
+int a = 5;
+auto lambda = [a]() mutable {
+    a = 10; // OK, 'a' nie jest już const
+};
+
+Zachowanie zmiennych przechwyconych przez wartość:
+
+Lambda tworzy kopię zmiennej przechwyconej przez wartość.
+Modyfikacja kopii wewnątrz lambdy nie wpływa na oryginalną zmienną.
+Kopia zmiennej istnieje tylko w zakresie lambdy. Po wyjściu z lambdy, kopia jest niszczona.
+
+Zachowanie zmiennych przechwyconych przez referencję:
+
+Lambda przechowuje referencję do oryginalnej zmiennej.
+Modyfikacja zmiennej wewnątrz lambdy wpływa bezpośrednio na oryginalną zmienną.
+```
 
 ## Async
 
 //TODO
 
-# VI Wyjątki
+# VI Szablony, STL
 
-## Dodatkowe informacje z działu
+W językach programowanie takich jak C++ gdzie
+istnieje ścisła kontrola typów często występuję
+potrzeba wielokrotnego zdefiniowania takiej
+samej funkcji, ale pracującej na różnych typach
+danych
 
-# VII STL
+# VII Kontenery
 
-## Dodatkowe informacje z działu
+```cpp
+    std::array<int, 3> a2 = {1, 2, 3};
+    std::vector<double> a1 = {1, 2, 3};
+```
 
-# VIII std::vector, std::array
+## Iteratory
 
-## Dodatkowe informacje z działu
+Iteratory w C++ to obiekty, które umożliwiają dostęp do elementów w kontenerach (np. std::vector, std::list, std::set) w sposób uogólniony, niezależny od konkretnego typu kontenera. Działają one podobnie do wskaźników, ale oferują bogatszy zestaw operacji i abstrakcji.
+
+Iteratory przechowują informacje o swojej pozycji w kontenerze. Każdy kontener ma metody begin() i end(), które zwracają iteratory wskazujące odpowiednio na pierwszy element i na element za ostatnim.
+
+1. begin(): Zwraca iterator wskazujący na pierwszy element.
+2. end(): Zwraca iterator wskazujący na element za ostatnim.
+3. rbegin(): Zwraca iterator odwrotny wskazujący na ostatni element.
+4. rend(): Zwraca iterator odwrotny wskazujący na element przed pierwszym.
+
+Aby przejść przez wszystkie elementy kontenera, można użyć pętli for:
+
+```cpp
+std::vector<int> v = {1, 2, 3, 4, 5};
+for (auto it = v.begin(); it != v.end(); ++it) {
+    std::cout << *it << " "; // Wypisanie wartości elementu
+}
+```
+
+Zastosowania iteratorów:
+
+1. Algorytmy STL: Iteratory są podstawą działania algorytmów biblioteki standardowej C++ (STL), takich jak std::sort, std::find, std::for_each.
+2. Pętle: Iteratory ułatwiają iterowanie po elementach kontenera w pętlach.
+3. Dostęp do elementów: Iteratory umożliwiają dostęp do elementów kontenera w sposób uogólniony, niezależny od konkretnego typu kontenera.
+
+## std::array
+
+std::array to kontener w C++, który przechowuje stałą liczbę elementów danego typu.
+
+### Dostęp do elementów
+
+1. at(size_type pos): Zwraca referencję do elementu na pozycji pos. Jeśli indeks jest poza zakresem, rzuca wyjątek std::out_of_range.
+2. operator[](size_type pos): Zwraca referencję do elementu na pozycji pos. Nie sprawdza zakresu indeksu, więc może być szybszy, ale mniej bezpieczny niż at().
+3. front(): Zwraca referencję do pierwszego elementu.
+4. back(): Zwraca referencję do ostatniego elementu.
+5. data(): Zwraca wskaźnik do pierwszego elementu tablicy. Umożliwia traktowanie std::array jak tradycyjną tablicę w stylu C.
+
+### Rozmiar i pojemność
+
+1. size(): Zwraca liczbę elementów w tablicy.
+2. max_size(): Zwraca maksymalną liczbę elementów, jaką tablica może pomieścić (zwykle bardzo duża).
+3. empty(): Sprawdza, czy tablica jest pusta (czyli czy size() == 0).
+
+### Modyfikacja
+
+1. fill(const T& value): Wypełnia całą tablicę wartością value.
+2. swap(array& other): Zamienia zawartość tablicy z inną tablicą other
+
+```cpp
+std::array<int, 5> arr = {1, 2, 3, 4, 5};
+arr.fill(0); // Wypełnia wszystkie elementy tablicy arr wartością 0
+// Teraz arr = {0, 0, 0, 0, 0}
+
+std::array<int, 3> arr1 = {1, 2, 3};
+std::array<int, 3> arr2 = {4, 5, 6};
+
+arr1.swap(arr2);
+// Teraz arr1 = {4, 5, 6}, a arr2 = {1, 2, 3}
+```
+
+## std::vector
+
+std::vector to jeden z najważniejszych i najczęściej używanych kontenerów w C++. Oferuje dynamiczną tablicę, która może zmieniać swój rozmiar w trakcie działania programu
+
+### Dostęp do elementów
+
+1. at(size_type pos): Zwraca referencję do elementu na pozycji pos. Rzuca wyjątek std::out_of_range, jeśli indeks jest poza zakresem.
+2. operator[](size_type pos): Zwraca referencję do elementu na pozycji pos. Nie sprawdza zakresu indeksu, więc może być szybszy, ale mniej bezpieczny niż at().
+3. front(): Zwraca referencję do pierwszego elementu.
+4. back(): Zwraca referencję do ostatniego elementu.
+5. data(): Zwraca wskaźnik do pierwszego elementu tablicy. Umożliwia traktowanie std::vector jak tradycyjną tablicę w stylu C.
+
+```cpp
+    std::vector<int> liczby = {10, 20, 30, 40, 50};
+    int* ptr = liczby.data();
+    std::cout << "liczby.data()[3] = " << ptr[3] << std::endl; // Wypisze: liczby.data()[3] = 40
+
+```
+
+### Rozmiar i pojemność
+
+1. size(): Zwraca liczbę elementów w wektorze.
+2. capacity(): Zwraca liczbę elementów, jaką wektor może aktualnie pomieścić bez realokacji pamięci.
+3. empty(): Sprawdza, czy wektor jest pusty (czyli czy size() == 0).
+4. resize(size_type n): Zmienia rozmiar wektora na n. Jeśli n jest większe niż obecny rozmiar, nowe elementy są dodawane na koniec i domyślnie inicjalizowane.
+5. reserve(size_type n): Rezerwuje miejsce w pamięci dla co najmniej n elementów, aby uniknąć realokacji podczas dodawania elementów.
+
+### Modyfikacja
+
+1. push_back(const T& value): Dodaje element value na koniec wektora.
+2. emplace_back(args...): Konstruuje element na końcu wektora, przekazując argumenty args do konstruktora elementu.
+3. pop_back(): Usuwa ostatni element wektora.
+4. insert(iterator pos, const T& value): Wstawia element value przed pozycją wskazywaną przez iterator pos.
+5. emplace(iterator pos, args...): Konstruuje element przed pozycją wskazywaną przez iterator pos, przekazując argumenty args do konstruktora elementu.
+6. erase(iterator pos): Usuwa element wskazywany przez iterator pos.
+7. erase(iterator first, iterator last): Usuwa zakres elementów od first do last.
+8. clear(): Usuwa wszystkie elementy wektora.
+9. swap(vector& other): Zamienia zawartość wektora z innym wektorem other.
+
+```cpp
+std::vector<int> v = {1, 2, 3};
+v.insert(v.begin() + 1, 10); // Wstawia 10 przed element 2
+// v = {1, 10, 2, 3}
+
+std::vector<int> v = {1, 2, 3};
+v.insert(v.begin(), 10); // Wstawia 10 na początek
+// v = {10, 1, 2, 3}
+
+std::vector<std::string> v = {"hello", "world"};
+v.emplace(v.begin() + 1, "beautiful"); // Konstruuje "beautiful" w miejscu
+// v = {"hello", "beautiful", "world"}
+
+std::vector<std::string> v = {"hello", "world"};
+v.emplace(v.begin(), "beautiful"); // Konstruuje "beautiful" na początku
+// v = {"beautiful", "hello", "world"}
+
+std::vector<int> v = {1, 2, 3};
+v.erase(v.begin() + 1); // Usuwa element 2
+// v = {1, 3}
+
+std::vector<int> v = {1, 2, 3, 4, 5};
+v.erase(v.begin() + 1, v.begin() + 4); // Usuwa elementy 2, 3 i 4
+// v = {1, 5}
+
+
+std::vector<int> v = {1, 2, 3};
+v.clear(); // v = {}
+```
+
+W vectorze, żeby coś działać trzeba używać iteratora.
 
 push_back: dodaje istniejący obiekt do wektora, potencjalnie go kopiując lub przenosząc.
 emplace_back: konstruuje obiekt bezpośrednio w wektorze, unikając kopiowania/przenoszenia.
 Zasad a ogólna: Używaj emplace_back, chyba że masz już istniejący obiekt do dodania.
+
+## std::map, std::unordered_map
+
+## std::set
+
+## std::list
+
+# VIII Wyjątki
+
+## Dodatkowe informacje z działu
