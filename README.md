@@ -1592,6 +1592,24 @@ Zastosowania iteratorów:
 2. Pętle: Iteratory ułatwiają iterowanie po elementach kontenera w pętlach.
 3. Dostęp do elementów: Iteratory umożliwiają dostęp do elementów kontenera w sposób uogólniony, niezależny od konkretnego typu kontenera.
 
+std::distance to funkcja w bibliotece standardowej C++, która oblicza odległość (liczbę elementów) między dwoma iteratorami.
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <iterator>
+
+int main() {
+    std::vector<int> v = {1, 2, 3, 4, 5};
+    auto it = v.begin() + 2; // Iterator wskazujący na trzeci element
+
+    int distance = std::distance(v.begin(), it); // Oblicza odległość między początkiem a it
+    std::cout << "Odległość: " << distance << std::endl; // Wypisze: Odległość: 2
+
+    return 0;
+}
+```
+
 ## std::array
 
 std::array to kontener w C++, który przechowuje stałą liczbę elementów danego typu.
@@ -1704,9 +1722,181 @@ Zasad a ogólna: Używaj emplace_back, chyba że masz już istniejący obiekt do
 
 ## std::map, std::unordered_map
 
+std::map to kontener asocjacyjny przechowujący pary klucz-wartość, gdzie każdy klucz jest unikalny.
+
+### Wstawianie i usuwanie elementów
+
+1. insert(const value_type& val): Wstawia parę klucz-wartość val do mapy, jeśli klucz jeszcze nie istnieje. Zwraca parę: iterator wskazujący na wstawiony (lub istniejący) element oraz wartość logiczną informującą, czy element został wstawiony (true) czy już istniał (false).
+2. emplace(Args&&... args): Konstruuje element w miejscu w mapie, używając argumentów args do konstruktora pary klucz-wartość. Działa podobnie do insert, ale może być bardziej wydajny dla niektórych typów.
+3. erase(iterator pos): Usuwa element wskazywany przez iterator pos.
+4. erase(const key_type& key): Usuwa element o kluczu key, jeśli istnieje. Zwraca liczbę usuniętych elementów (0 lub 1).
+5. clear(): Usuwa wszystkie elementy z mapy.
+
+### Wyszukiwanie elementów
+
+1. find(const key_type& key): Wyszukuje element o kluczu key. Zwraca iterator wskazujący na znaleziony element lub end(), jeśli element nie istnieje.
+2. count(const key_type& key): Zwraca liczbę elementów o kluczu key (0 lub 1, ponieważ mapa przechowuje unikalne klucze).
+3. lower_bound(const key_type& key): Zwraca iterator wskazujący na pierwszy element nie mniejszy niż key.
+4. upper_bound(const key_type& key): Zwraca iterator wskazujący na pierwszy element większy niż key.
+5. equal_range(const key_type& key): Zwraca parę iteratorów: lower_bound(key) i upper_bound(key).
+
+### Dostęp do elementów
+
+1. operator[](const key_type& key): Zwraca referencję do wartości skojarzonej z kluczem key. Jeśli klucz nie istnieje, tworzy nowy element z wartością domyślną.
+
+```cpp
+#include <iostream>
+#include <map>
+#include <string>
+
+int main() {
+    std::map<std::string, int> osoby = {
+        {"Jan", 30},
+        {"Anna", 25}
+    };
+
+    osoby.insert({"Piotr", 35});
+    osoby["Maria"] = 28; // Użycie operatora []
+
+    std::cout << "Zawartość mapy:\n";
+    for (const auto& [imie, wiek] : osoby) {
+        std::cout << imie << ": " << wiek << std::endl;
+    }
+
+    return 0;
+}
+
+
+```
+
+### Rozmiar i pojemność
+
+1. size(): Zwraca liczbę elementów w mapie.
+2. empty(): Sprawdza, czy mapa jest pusta (czyli czy size() == 0).
+
 ## std::set
 
+### Wstawianie i usuwanie elementów
+
+std::set to kontener asocjacyjny w C++, który przechowuje unikalne elementy w określonej kolejności (zazwyczaj posortowane).
+
+1. insert(const value_type& val): Wstawia element val do zbioru, jeśli go jeszcze nie ma. Zwraca parę: iterator wskazujący na wstawiony (lub istniejący) element oraz wartość logiczną informującą, czy element został wstawiony (true) czy już istniał (false).
+2. emplace(Args&&... args): Konstruuje element w miejscu w zbiorze, używając argumentów args do konstruktora elementu. Działa podobnie do insert, ale może być bardziej wydajny dla niektórych typów.
+3. erase(iterator pos): Usuwa element wskazywany przez iterator pos.
+4. erase(const key_type& key): Usuwa element o kluczu key, jeśli istnieje. Zwraca liczbę usuniętych elementów (0 lub 1).
+5. clear(): Usuwa wszystkie elementy ze zbioru.
+
+### Wyszukiwanie elementów
+
+1. find(const key_type& key): Wyszukuje element o kluczu key. Zwraca iterator wskazujący na znaleziony element lub end(), jeśli element nie istnieje.
+2. count(const key_type& key): Zwraca liczbę elementów o kluczu key (0 lub 1, ponieważ zbiór przechowuje unikalne elementy).
+3. lower_bound(const key_type& key): Zwraca iterator wskazujący na pierwszy element nie mniejszy niż key.
+4. upper_bound(const key_type& key): Zwraca iterator wskazujący na pierwszy element większy niż key.
+5. equal_range(const key_type& key): Zwraca parę iteratorów: lower_bound(key) i upper_bound(key).
+
+### Rozmiar i pojemność
+
+1. size(): Zwraca liczbę elementów w zbiorze.
+2. empty(): Sprawdza, czy zbiór jest pusty (czyli czy size() == 0).
+
+```cpp
+#include <iostream>
+#include <set>
+
+int main() {
+    std::set<int> liczby = {3, 1, 4, 1, 5}; // Automatycznie posortuje i usunie duplikaty: {1, 3, 4, 5}
+
+    liczby.insert(2);
+    liczby.erase(5);
+
+    std::cout << "Zawartość zbioru: ";
+    for (int liczba : liczby) {
+        std::cout << liczba << " ";
+    }
+    std::cout << std::endl;
+
+    auto it = liczby.find(3);
+    if (it != liczby.end()) {
+        std::cout << "Znaleziono 3 na pozycji: " << std::distance(liczby.begin(), it) << std::endl;
+    } else {
+        std::cout << "Nie znaleziono 3" << std::endl;
+    }
+
+    return 0;
+}
+
+```
+
 ## std::list
+
+std::list to kontener sekwencyjny w C++, który przechowuje elementy w dwukierunkowej liście. W przeciwieństwie do std::vector, elementy nie są przechowywane w ciągłym obszarze pamięci, co pozwala na efektywne wstawianie i usuwanie elementów w dowolnym miejscu listy.
+
+### Wyszukiwanie elementów
+
+1. find(const key_type& key): Wyszukuje element o kluczu key. Zwraca iterator wskazujący na znaleziony element lub end(), jeśli element nie istnieje.
+2. count(const key_type& key): Zwraca liczbę elementów o kluczu key (0 lub 1, ponieważ zbiór przechowuje unikalne elementy).
+3. lower_bound(const key_type& key): Zwraca iterator wskazujący na pierwszy element nie mniejszy niż key.
+4. upper_bound(const key_type& key): Zwraca iterator wskazujący na pierwszy element większy niż key.
+5. equal_range(const key_type& key): Zwraca parę iteratorów: lower_bound(key) i upper_bound(key).
+
+### Wstawianie i usuwanie elementów
+
+1. push_front(const T& value): Dodaje element value na początek listy.
+2. emplace_front(Args&&... args): Konstruuje element na początku listy, używając argumentów args do konstruktora elementu.
+3. pop_front(): Usuwa pierwszy element listy.
+4. push_back(const T& value): Dodaje element value na koniec listy.
+5. emplace_back(Args&&... args): Konstruuje element na końcu listy, używając argumentów args do konstruktora elementu.
+6. pop_back(): Usuwa ostatni element listy.
+7. insert(iterator pos, const T& value): Wstawia element value przed pozycję wskazywaną przez iterator pos.
+8. emplace(iterator pos, Args&&... args): Konstruuje element przed pozycją wskazywaną przez iterator pos, używając argumentów args do konstruktora elementu.
+9. erase(iterator pos): Usuwa element wskazywany przez iterator pos.
+10. erase(iterator first, iterator last): Usuwa zakres elementów od first do last.
+11. clear(): Usuwa wszystkie elementy z listy.
+12. remove(const T& value): Usuwa wszystkie elementy o wartości value.
+13. remove_if(Predicate pred): Usuwa wszystkie elementy, dla których predykat pred zwraca true.
+    unique()
+
+### Dostęp do elementów
+
+1. front(): Zwraca referencję do pierwszego elementu.
+2. back(): Zwraca referencję do ostatniego elementu.
+
+### Rozmiar i pojemność
+
+1. size(): Zwraca liczbę elementów w liście.
+2. empty(): Sprawdza, czy lista jest pusta (czyli czy size() == 0).
+3. max_size(): Zwraca maksymalną liczbę elementów, jaką lista może pomieścić (zwykle bardzo duża).
+
+### Inne
+
+1. merge(list& other): Scala dwie posortowane listy w jedną posortowaną listę.
+2. sort(): Sortuje elementy listy.
+3. reverse(): Odwraca kolejność elementów listy.
+4. splice(iterator pos, list& other): Przenosi wszystkie elementy z listy other przed pozycję pos.
+
+```cpp
+#include <iostream>
+#include <list>
+
+int main() {
+    std::list<int> liczby = {3, 1, 4, 1, 5};
+
+    liczby.push_front(0);
+    liczby.push_back(6);
+    liczby.remove(1); // Usuwa wszystkie elementy o wartości 1
+    liczby.sort();
+
+    std::cout << "Zawartość listy: ";
+    for (int liczba : liczby) {
+        std::cout << liczba << " ";
+    }
+    std::cout << std::endl;
+
+    return 0;
+}
+```
+
+OGÓLNIE JAK BĘDZIESZ SIĘ UCZYĆ WSZYSTKICH KONTENERÓW TO JAK NUACZYSZ SIĘ JEDNEGO DOBRZE TO BĘDZIESZ UMIAŁ WSZYSTKIE DOBRZE
 
 # VIII Wyjątki
 
