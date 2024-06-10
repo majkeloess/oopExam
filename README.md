@@ -1900,4 +1900,4 @@ OGÓLNIE JAK BĘDZIESZ SIĘ UCZYĆ WSZYSTKICH KONTENERÓW TO JAK NUACZYSZ SIĘ J
 
 # VIII Wyjątki
 
-## Dodatkowe informacje z działu
+//TODO
