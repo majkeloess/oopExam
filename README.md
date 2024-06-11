@@ -1559,6 +1559,236 @@ potrzeba wielokrotnego zdefiniowania takiej
 samej funkcji, ale pracującej na różnych typach
 danych
 
+Do definiowania szablonów używane jest słowo
+kluczowe template
+
+```cpp
+template<typename Typ> Typ min(Typ a, Typ b)
+{ return (a < b) ? a : b; }
+```
+
+W tym przykładzie parametrem szablonu jest Typ, który
+może zostać zamieniony na dowolny typ rzeczywisty
+(wbudowany lub zdefiniowany przez programistę).
+Najczęściej używa się do nazwania typu symbolu T.
+
+Zdefiniowanie szablonu zaoszczędza nam programistom pisania,
+ale wcale nie zmniejsza kodu wygenerowanego przez kompilator. Po prostu kompilator generuje funkcje z szablonu dla każdego typu
+dla jakiego jest ona potrzebna.
+
+## Wywoływanie funkcji szablonowej
+
+Skąd wiadomo jaka funkcja szablonowa jest potrzebna? Po prostu kompilator patrzy na typ(-y) argumentów wywołania i
+produkuje żądaną funkcję
+
+```cpp
+template <typename T> T max(T a, T b)
+{
+  return (a < b) ? b : a;
+}
+
+template <typename T> T min(T a, T b)
+{
+  return (a < b) ? a : b;
+}
+
+//....
+  cout << "max(2.3, 3.3) = " << OOP::max(2.3, 3.3) << endl;
+  cout << "min(2.3, 3.3) = " << OOP::min(2.3, 3.3) << endl;
+
+  cout << "max(2.3, 3.3) = " << OOP::max<long>(2.3, 3.3) << endl;
+  cout << "min(2.3, 3.3) = " << OOP::min<long>(2.3, 3.3) << endl;
+
+  cout << "max('a', 'b') = " << OOP::max<unsigned short>('a', 'b') << endl;
+  cout << "min('a', 'b') = " << OOP::min<unsigned short>('a', 'b') << endl;
+
+```
+
+## Szablony dla typów wbudowanych
+
+W celu bardziej uniwersalnego podejścia do pisania
+szablonów wprowadzono modyfikacje w stosunku do
+wbudowanych typów danych.
+
+1. Dopuszczenie wywołania konstruktorów: int obiekt(value);
+2. Dopuszczenie inicjalizacji w postaci: int obiekt = int(value);
+3. Dopuszczono bezpośrednie wywołane destruktorów: obiekt.int::~int()
+
+Gdyby te oczywiste zapisy nie były tolerowane przez
+kompilator to, na ogół trzeba by było pisać osobne wersje
+szablonów dla typów wbudowanych.
+
+Dlaczego to jest ważne?
+
+Dzięki tym "ułatwieniom" możesz pisać szablony, które działają zarówno z typami wbudowanymi, jak i z klasami, bez konieczności pisania specjalnych wersji dla typów wbudowanych.
+
+Załóżmy, że chcesz napisać szablon funkcji, która wypisuje wartość zmiennej i jej typ:
+
+```cpp
+template <typename T>
+void wypiszTyp(const T& x) {
+    std::cout << "Typ: " << typeid(x).name() << ", wartość: " << x << std::endl;
+}
+
+int i = 5;
+wypiszTyp(i); // Typ: int, wartość: 5
+
+std::string s = "Hello";
+wypiszTyp(s); // Typ: NSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE, wartość: Hello
+
+
+```
+
+Możesz teraz użyć tej funkcji zarówno z typami wbudowanymi, jak i z klasami
+
+## Wiele parametrów szablonu
+
+Szablon oczywiście może mieć więcej niż jeden parametr
+Każdy unikatowy typ użyty w wywołaniu funkcji, musi się
+znaleźć na liście parametrów szablonu
+
+```cpp
+
+template <typename T1, typename T2>
+fun(T1 a, T2 b) {…}
+template <typename T1, typename T2>
+fun(T1 a, T1 b, T2 c, T2 d) {…}
+
+```
+
+## Szczególne przypadki szablonów
+
+Jeden szablon może być szczególnym przypadkiem
+drugiego:
+
+```cpp
+template<typename Typ> Typ max(Typ a, Typ b)
+{ return (a < b) ? b : a; }
+template<typename T1, typename T2> T1 max(T1 a, T2 b)
+{ return (a < b) ? b : a; }
+
+```
+
+Oba szablony mogą istnieć niezależnie od siebie. Może jednak pojawić się konflikt, ponieważ w wywołaniu max(1,2), kompilator może wykorzystać obie wersje do wyprodukowanie funkcji
+Nie ma przeciwwskazań, żeby T1 było tym samym co T2.
+Na ogół jednak kompilator przy wywołaniu np. max(1, 2);, skorzysta z
+szablonu z jednym typem, nie generując błędu
+
+## Typy pochodne
+
+W ciele szablonu możemy posługiwać się zarówno
+jego argumentem do tworzenia zmiennych
+automatycznych (np. Typ A;) jak i typów
+pochodnych takich jak wskaźniki, referencje czy
+tablice.
+
+Definiowanie typów pochodnych odbywa się w taki
+sam sposób jak w normalnych funkcjach:
+
+```cpp
+T* a; //wskaźnik do zmiennej typu T
+T& a = b; //referencja do zmiennej typu T
+T a[10]; //tablica elementów typu T
+```
+
+## std::find, std::find_if
+
+W C++, std::find i std::find_if to algorytmy z biblioteki standardowej (<algorithm>), które służą do wyszukiwania elementów w zakresie (np. w kontenerach takich jak vector, list, array
+
+### std::find
+
+Przyjmuje trzy argumenty:
+
+1. first: Iterator wskazujący na początek zakresu.
+2. last: Iterator wskazujący na element za końcem zakresu.
+3. value: Wartość, której szukamy.
+
+Porównuje każdy element w zakresie z value używając operatora ==.
+Jeśli znajdzie element równy value, zwraca iterator wskazujący na ten element.
+Jeśli nie znajdzie, zwraca iterator last.
+
+```cpp
+std::vector<int> numbers = {3, 1, 4, 1, 5, 9};
+
+auto it = std::find(numbers.begin(), numbers.end(), 1);
+if (it != numbers.end()) {
+    std::cout << "Znaleziono 1 na pozycji: " << std::distance(numbers.begin(), it) << std::endl;
+} else {
+    std::cout << "Nie znaleziono 1" << std::endl;
+}
+```
+
+### std::find_if
+
+Przyjmuje trzy argumenty:
+
+1. first: Iterator wskazujący na początek zakresu.
+2. last: Iterator wskazujący na element za końcem zakresu.
+3. pred: Funkcja (lub obiekt funkcyjny) zwracająca wartość logiczną (bool), która określa warunek wyszukiwania.
+
+Wywołuje funkcję pred dla każdego elementu w zakresie.
+Jeśli pred zwróci true dla danego elementu, algorytm zwraca iterator wskazujący na ten element.
+Jeśli pred nie zwróci true dla żadnego elementu, algorytm zwraca iterator last.
+
+```cpp
+std::vector<int> numbers = {3, 1, 4, 1, 5, 9};
+
+auto it = std::find_if(numbers.begin(), numbers.end(), [](int num) {
+    return num % 2 == 0; // Sprawdza, czy liczba jest parzysta
+});
+
+if (it != numbers.end()) {
+    std::cout << "Znaleziono pierwszą liczbę parzystą: " << *it << std::endl;
+} else {
+    std::cout << "Nie znaleziono liczb parzystych" << std::endl;
+}
+```
+
+W kontekście C++ i programowania ogólnie, predykat to funkcja (lub obiekt funkcyjny), która zwraca wartość logiczną (bool) w oparciu o spełnienie określonego warunku. Innymi słowy, predykat to funkcja, która "orzeka" o czymś, odpowiadając na pytanie "czy to jest prawda?"
+
+## std::sort
+
+std::sort to algorytm sortowania z biblioteki standardowej C++ (<algorithm>), który służy do porządkowania elementów w zakresie (np. w kontenerach takich jak vector, list, array)
+
+Wybór algorytmu: std::sort zazwyczaj korzysta z hybrydowego algorytmu Introspective Sort (Introsort), który łączy w sobie zalety Quick Sort, Heap Sort i Insertion Sort. Dzięki temu jest wydajny w większości przypadków i unika najgorszego przypadku złożoności O(n^2), który może wystąpić w Quick Sort.
+
+Porównywanie elementów: Domyślnie, std::sort porównuje elementy za pomocą operatora < (mniejszości). Możemy jednak podać własną funkcję porównującą (predykat), jeśli chcemy sortować według innego kryterium.
+
+Sortowanie: Algorytm dzieli zakres na mniejsze podzakresy, sortuje je rekurencyjnie, a następnie łączy posortowane podzakresy w całość.
+
+```cpp
+std::vector<int> numbers = {5, 2, 9, 1, 7};
+std::sort(numbers.begin(), numbers.end()); // Sortowanie rosnąco
+
+std::vector<std::string> words = {"kot", "pies", "mysz"};
+std::sort(words.begin(), words.end(), [](const std::string& a, const std::string& b) {
+    return a.size() < b.size(); // Sortowanie według długości słów
+});
+```
+
+## std::for_each
+
+Stosuje podaną funkcję (lub obiekt funkcyjny) do każdego elementu w zakresie.
+
+Przyjmuje trzy argumenty:
+
+1. first: Iterator wskazujący na początek zakresu.
+2. last: Iterator wskazujący na element za końcem zakresu.
+3. func: Funkcja (lub obiekt funkcyjny), która będzie wywołana dla każdego elementu.
+
+Iteruje po wszystkich elementach w zakresie od first do last.
+Dla każdego elementu wywołuje funkcję func, przekazując jej ten element jako argument.
+
+```cpp
+std::vector<int> liczby = {1, 2, 3, 4, 5};
+
+std::cout << "Kwadraty liczb: ";
+std::for_each(liczby.begin(), liczby.end(), [](int x) {
+    std::cout << x * x << " ";
+});
+std::cout << std::endl;
+```
+
 # VII Kontenery
 
 ```cpp
