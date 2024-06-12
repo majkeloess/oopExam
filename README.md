@@ -526,6 +526,41 @@ int main()
 
 ```
 
+## Operator Konwersji
+
+Operator konwersji (conversion operator) w C++ to specjalny operator, który pozwala na zdefiniowanie niejawnej lub jawnej konwersji obiektu jednej klasy na wartość innego typu.
+
+```cpp
+operator typ_docelowy() const;  // Niejawna konwersja
+explicit operator typ_docelowy() const;  // Jawna konwersja
+
+//example:
+  operator T()
+  {
+    return value;
+  }
+
+
+//example2
+class Wektor2D {
+public:
+    Wektor2D(double x, double y) : x(x), y(y) {}
+
+    explicit operator double() const { // Jawna konwersja na double (długość wektora)
+        return sqrt(x*x + y*y);
+    }
+
+private:
+    double x, y;
+};
+
+int main() {
+    Wektor2D v(3, 4);
+    double dlugosc = static_cast<double>(v); // Jawna konwersja
+    std::cout << dlugosc << std::endl; // Wypisze: 5
+}
+```
+
 ## Dodatkowe informacje z działu
 
 W C++, struktury (podobnie jak klasy) mogą dziedziczyć po innych strukturach (lub klasach). Robi się to za pomocą słowa kluczowego : i określenia trybu dostępu (publiczne, chronione lub prywatne). Domyślnym trybem dostępu dla struktur jest publiczny, co oznacza, że wszystkie publiczne składowe klasy bazowej stają się publicznymi składowymi klasy pochodnej.
