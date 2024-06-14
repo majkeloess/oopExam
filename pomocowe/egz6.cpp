@@ -1,23 +1,75 @@
-namespace std{
-  class vector{};
-  class list{};
-  class deque{};
-  class set{};
-  class map{};
+#include <cstdlib>
+#include <iostream>
+namespace std
+{
+  class vector
+  {
+  };
+  class list
+  {
+  };
+  class deque
+  {
+  };
+  class set
+  {
+  };
+  class map
+  {
+  };
 }
 
-#include<cstdlib>
-#include <iostream>
+namespace oop
+{
+  template <typename T>
+  class Array
+  {
+  private:
+    T *m_array{};
+    int m_size{};
+    int m_index{};
 
-int main(){
+  public:
+    using value_type = T;
+    Array(int size)
+        : m_size{size}, m_array{new T[size]}
+    {
+    }
 
-    typedef oop::Array<char> type;
-    type a( rand() % 10 + 6 );
+    Array &insert(T val)
+    {
+      m_array[m_index] = val;
+      m_index++;
+      return *this;
+    }
 
-    a.insert('#').insert('C') + type::value_type('+') + '+' + '0' + ('0' + 3 );
+    T operator[](int index)
+    {
+      return m_array[index];
+    }
 
-    for(unsigned i = 0; i!= ~a; ++i)
-      std::cout<< a[i] << (i+1 != ~a ? "" : "\n"  );
+    Array &operator+(T val)
+    {
+      return insert(val);
+    }
+
+    int operator~()
+    {
+      return m_size;
+    }
+  };
+}
+
+int main()
+{
+
+  typedef oop::Array<char> type;
+  type a(rand() % 10 + 6); // od 6 do 15
+
+  a.insert('#').insert('C') + type::value_type('+') + '+' + '0' + ('0' + 3);
+
+  for (unsigned i = 0; i != ~a; ++i)
+    std::cout << a[i] << (i + 1 != ~a ? "" : "\n");
 }
 
 /*
