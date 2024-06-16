@@ -1,27 +1,32 @@
-#include<iostream>
+#include <iostream>
 
 using namespace std;
 
 struct A
 {
-    A(int a,int b) : _a(a),_b(b) {cout<< __PRETTY_FUNCTION__ << "_a="<<_a<<", _b="<<_b<<"\n";}
-    A() : A(0,0) {cout<< __PRETTY_FUNCTION__ << "_a="<<_a<<", _b="<<_b<<"\n";}
-    explicit A(int a) : A(a,0) {cout<< __PRETTY_FUNCTION__ << "_a="<<_a<<", _b="<<_b<<"\n";}
-    A(A&& obj) : _a(obj._a),_b(obj._b) {cout<< __PRETTY_FUNCTION__ << "_a="<<_a<<", _b="<<_b<<"\n";}
+    A(int a, int b) : _a(a), _b(b) { cout << __PRETTY_FUNCTION__ << "_a=" << _a << ", _b=" << _b << "\n"; }
+    A() : A(0, 0) { cout << __PRETTY_FUNCTION__ << "_a=" << _a << ", _b=" << _b << "\n"; }
+    explicit A(int a) : A(a, 0) { cout << __PRETTY_FUNCTION__ << "_a=" << _a << ", _b=" << _b << "\n"; }
+    A(A &&obj) : _a(obj._a), _b(obj._b) { cout << __PRETTY_FUNCTION__ << "_a=" << _a << ", _b=" << _b << "\n"; }
+
 private:
-    int _a=0, _b=0;
+    int _a = 0, _b = 0;
 };
 
 int main()
 {
-    cout << "a->"; A a;
-    cout << "b->"; A b(1);
-    cout << "c->"; A c(1,2);
+    cout << "a->";
+    A a;
+    cout << "b->";
+    A b(1);
+    cout << "c->";
+    A c(1, 2);
 
-    cout << "d->"; A d = std::move(c);
+    cout << "d->";
+    A d = std::move(c);
 
-    //A e = c;
-    //A f = 1;
+    // A e = c;
+    //  A f = 1;
 }
 /*
 a-> A::A(int,int): _a=0,_b=0
