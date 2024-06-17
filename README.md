@@ -1826,10 +1826,17 @@ std::cout << std::endl;
 
 # VII Kontenery
 
-```cpp
-    std::array<int, 3> a2 = {1, 2, 3};
-    std::vector<double> a1 = {1, 2, 3};
-```
+W C++ standardowa biblioteka szablonów (STL) oferuje dwa główne rodzaje kontenerów: sekwencyjne (sequence containers) i asocjacyjne (associative containers). Różnią się one sposobem przechowywania i dostępu do elementów.
+
+## Sequence Containers (Kontenery sekwencyjne)
+
+1. Przechowywanie: Elementy są przechowywane w liniowej kolejności, jeden po drugim.
+2. Dostęp: do elementów odbywa się głównie poprzez ich pozycję (indeks) w kontenerze.
+
+## Associative Containers (Kontenery asocjacyjne)
+
+1. Przechowywanie: Elementy są przechowywane w postaci par klucz-wartość. Każdy klucz jest unikalny.
+2. Dostęp: Dostęp do elementów odbywa się głównie poprzez ich klucze. Kontenery asocjacyjne zazwyczaj zapewniają szybkie wyszukiwanie elementów na podstawie klucza.
 
 ## Iteratory
 
