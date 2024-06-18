@@ -7,8 +7,6 @@
 // using uniq_int = std::unique_ptr<int>;
 // Takie coś trzeba zapierdolić jak bez szablonów
 
-//Tam gdzie
-
 void my_print_el(const std::string &str)
 {
   // std::cout << str;
