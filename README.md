@@ -2198,6 +2198,189 @@ try {
 2. Blok catch: Zawiera kod, który obsługuje określony typ wyjątku.
 3. Blok finally (opcjonalny): Zawiera kod, który jest zawsze wykonywany, niezależnie od tego, czy wyjątek został zgłoszony i przechwycony, czy nie.
 
+## Rzucanie obiektu klasy pochodnej, a odbieranie obiektu klasy bazowej
+
+Przy normalnym wywołaniu funkcji taka sytuacja nie może mieć
+miejsca (do przesyłanie obiektów używany jest stos). Dlaczego jest to możliwe: Ponieważ nie obowiązują zwykłe reguły związane ze stosem - sam stos
+nie bierze udziału w przekazywaniu argumentu wyjątku.
+Obiekt rzucany jest kopiowany do obiektu statycznego
+
+Odbierając obiekt klasy bazowej tracimy część informacji
+związanej z klasą pochodną, Operujemy na obiekcie klasy podstawowej, który nie da się
+przekształcić w obiekt klasy pochodnej nawet za pomocą rzutowania. Ale informacja o obiekcie klasy pochodnej nie jest jeszcze
+bezpowrotnie stracona. Może zostać użyta dalej jeżeli wywołamy instrukcję throw ;.
+
+```cpp
+#include <iostream>
+
+using namespace std;
+
+class MyException
+{
+public:
+  virtual void print()
+  {
+  }
+};
+
+/////////////////////////////////////////////////////////////////////////
+class MyExceptionFloat : public MyException
+{
+public:
+  MyExceptionFloat(float ff = 0.0) : f(ff)
+  {
+  }
+  void print()
+  {
+    cout << f;
+  }
+  float f;
+};
+
+/////////////////////////////////////////////////////////////////////////
+class MyExceptionInt : public MyException
+{
+public:
+  MyExceptionInt(int ff = 0) : f(ff)
+  {
+  }
+  void print()
+  {
+    cout << f;
+  }
+
+  int f;
+};
+
+/////////////////////////////////////////////////////////////////////////
+class MyExceptionChar : public MyException
+{
+public:
+  MyExceptionChar(char ff = 'a') : f(ff), test(10)
+  {
+  }
+  void print()
+  {
+    cout << f;
+  }
+
+  char f;
+  int  test;
+};
+
+/////////////////////////////////////////////////////////////////////////
+int main(int argc, char *argv[])
+{
+  try
+  {
+    try
+    {
+      int a;
+
+      cout
+          << "Podaj rodazaj wyrzucenia wyjatku\n1 - int, 2 - float, 3 - char\n";
+      cin >> a;
+
+      if (a == 1)
+        throw MyExceptionInt(10);
+      else if (a == 2)
+        throw MyExceptionFloat(25.36);
+      else if (a == 3)
+        throw MyExceptionChar();
+      else
+      {
+        MyExceptionFloat *ptr = new MyExceptionFloat(3.14);
+        throw ptr;
+      }
+    }
+    catch (MyExceptionInt &K)
+    {
+      cout << "Zlapany wyjatek MyExceptionInt = " << K.f << "\n";
+      return -1;
+    }
+    catch (MyExceptionFloat &K)
+    {
+      cout << "Zlapany wyjatek MyExceptionFloat = " << K.f << "\n";
+      return -1;
+    }
+    catch (MyException &K)
+    {
+      cout << "\nZlapany wyjatek klasy podstawowej\n";
+      throw;
+    }
+  }
+
+  catch (MyExceptionChar &K)
+  {
+    cout << "Zlapany wyjatek MyExceptionChar& = ";
+    K.print();
+    cout << ", zmienna dodatkowa test = " << K.test << endl;
+    return -1;
+  }
+  catch (MyException *K)
+  {
+    cout << "Zlapany wyjatek MyException* = ";
+    K->print();
+    cout << endl;
+    return -1;
+  }
+
+  cout << "Program zadzialal poprawnie\n";
+  return 0;
+}
+
+```
+
+## Funkcyjny blok try-catch
+
+Istnieje możliwość ustanowienia bloku try wokół całej
+funkcji. Jest to wtedy cześć definicji funkcji, w szczególności interesujące jeśli dotyczy konstruktora z listą
+inicjalizacyjną, która wtedy też jest nim objęta.
+
+1. Wszystko co został skonstruowane zostaje w tej sytuacji zniszczone
+   przed wejściem do bloku catch
+2. W przypadku konstruktorów i destruktorów jeśli nie zostanie
+   wyrzucony wyjątek nastąpi to automatycznie (throw;)
+3. Dla wszystkich innych funkcji osiągnięcie końca bloku catch jest
+   równoważne instrukcji return;
+
+Bardzo rzadko używane w przypadku innych funkcji niż konstruktor
+
+```cpp
+struct S {
+    std::string m;
+
+    S(const std::string& arg) try : m(arg, 100) {
+        std::cout << "constructed, mn = " << m << '\n';
+    } catch(const std::exception& e) {
+        std::cout << "arg=" << arg << " failed: " << e.what() << '\n';
+    } // implicit throw; here
+};
+
+
+int f(int n = 2) try {
+   ++n; // increments the function parameter
+   throw n;
+}
+catch(...) {
+   ++n; // n is in scope and still refers to the function parameter
+   std::cout << "Value n still reachable = " << n << '\n';
+    return n;
+}
+
+int main()
+{
+    f();
+    try {
+        S s("Test");
+    }
+    catch(const std::exception& e) {
+       std::cout << "Catch rethrown exception from S::S()\n" << e.what() << '\n';
+    }
+}
+
+```
+
 ## Odwikłanie stosu
 
 Istnienie bloku try jest potrzebne gdyż w momencie
