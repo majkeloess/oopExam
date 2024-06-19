@@ -2570,3 +2570,70 @@ int main() {
 ```
 
 W tym przykładzie, pamięć zaalokowana dla uniquePtr i sharedPtr1 zostanie automatycznie zwolniona po zakończeniu funkcji main.
+
+# Type traits
+
+Są to narzędzia dostarczane przez bibliotekę standardową C++ (<type_traits>), które pozwalają na sprawdzanie i manipulowanie właściwościami typów w czasie kompilacji. Dzięki nim możesz pisać bardziej ogólny i elastyczny kod, który dostosowuje się do różnych typów danych.
+
+Najważniejsze cechy typów:
+
+1. std::is_integral<T>: Sprawdza, czy typ T jest typem całkowitym (np. int, char, long).
+2. std::is_floating_point<T>: Sprawdza, czy typ T jest typem zmiennoprzecinkowym (np. float, double).
+3. std::is_pointer<T>: Sprawdza, czy typ T jest wskaźnikiem.
+4. std::is_class<T>: Sprawdza, czy typ T jest klasą.
+5. std::is_same<T, U>: Sprawdza, czy typy T i U są identyczne.
+6. std::is_base_of<Base, Derived>: Sprawdza, czy Base jest klasą bazową dla Derived.
+7. std::remove_const<T>: Usuwa kwalifikator const z typu T.
+8. std::add_pointer<T>: Dodaje wskaźnik do typu T.
+9. std::conditional<B, T, F>: Wybiera typ T lub F w zależności od wartości logicznej B.
+
+# Szablon klasy przechowującej dane na stosie lub stercie
+
+```cpp
+#include <iostream>
+#include <new> // for placement new
+
+template <typename T>
+class Storage {
+public:
+    Storage(const T& value) {
+        if constexpr (sizeof(T) <= sizeof(int)) {
+            // Przechowuj na stosie
+            new (&dataOnStack) T(value);
+            //if constexpr (sizeof(T) <= sizeof(int)): To wyrażenie jest sprawdzane w czasie kompilacji. Jeśli rozmiar typu T jest mniejszy lub równy rozmiarowi int, obiekt będzie przechowywany na stosie (dataOnStack). W przeciwnym razie, obiekt będzie przechowywany na stercie (dataPtr).
+            //new (&dataOnStack) T(value);: To jest tzw. placement new. Umożliwia on konstruowanie obiektu w konkretnym miejscu w pamięci (w tym przypadku w dataOnStack).
+
+        } else {
+            // Przechowuj na stercie
+            dataPtr = new T(value);
+        }
+    }
+
+    ~Storage() {
+        if (dataPtr) {
+            delete dataPtr;
+        }
+    }
+
+    T& get() {
+        if (dataPtr) {
+            return *dataPtr;
+        } else {
+            return dataOnStack;
+        }
+    }
+
+private:
+    union {
+        T dataOnStack;
+        T* dataPtr;
+    };
+};
+
+
+//przykład użycia ...
+Storage<int> intStorage(5); // Przechowywane na stosie
+Storage<std::array<int, 100>> arrayStorage({1, 2, 3}); // Przechowywane na stercie
+//
+
+```
