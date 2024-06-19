@@ -2587,6 +2587,47 @@ Najważniejsze cechy typów:
 8. std::add_pointer<T>: Dodaje wskaźnik do typu T.
 9. std::conditional<B, T, F>: Wybiera typ T lub F w zależności od wartości logicznej B.
 
+std::is_pod to szablon struktury (class template) w bibliotece standardowej C++, który pozwala sprawdzić, czy dany typ jest typem POD (Plain Old Data). Typ POD to taki, który ma prostą strukturę danych, podobną do typów w języku C.
+
+Klasa (class) w C++ może być POD (Plain Old Data), ale nie jest nim domyślnie. Aby klasa była POD, musi spełniać wszystkie poniższe warunki:
+
+1. Ma trywialny konstruktor domyślny (generowany automatycznie przez kompilator).
+2. Ma trywialny destruktor (generowany automatycznie przez kompilator).
+3. Ma trywialne konstruktory kopiujące i przenoszące (generowane automatycznie przez kompilator).
+4. Ma trywialne operatory przypisania kopiującego i przenoszącego (generowane automatycznie przez kompilator).
+5. Wszystkie nie statyczne składowe danych mają ten sam poziom dostępu (publiczny, chroniony lub prywatny).
+6. Nie ma wirtualnych funkcji bazowych.
+7. Nie ma wirtualnych metod.
+8. Nie ma pól referencyjnych.
+9. Wszystkie klasy bazowe i składowe klas są również typu standard layout.
+
+```cpp
+struct Point {  // POD
+    int x;
+    int y;
+};
+
+class Shape { // Nie POD (ma wirtualny destruktor)
+public:
+    virtual ~Shape() {}
+};
+
+class Rectangle : public Shape { // Nie POD (dziedziczy po klasie nie-POD)
+public:
+    int width;
+    int height;
+};
+
+//....
+
+std::cout << std::boolalpha;
+std::cout << "Point is POD: " << std::is_pod<Point>::value << std::endl; // true
+std::cout << "Shape is POD: " << std::is_pod<Shape>::value << std::endl; // false
+
+
+
+```
+
 # Szablon klasy przechowującej dane na stosie lub stercie
 
 ```cpp
