@@ -2168,8 +2168,222 @@ int main() {
 }
 ```
 
-## std::deque
-
 # VIII Wyjątki
 
-//TODO
+Obsługa wyjątków (exception handling) w C++ to mechanizm służący do zarządzania błędami i sytuacjami wyjątkowymi, które mogą wystąpić podczas działania programu. Dzięki niej można oddzielić kod odpowiedzialny za normalne działanie programu od kodu obsługującego błędy, co zwiększa czytelność, elastyczność i niezawodność kodu.
+
+Jak działa obsługa wyjątków:
+
+1. Zgłaszanie wyjątku (throw): gdy wystąpi błąd lub sytuacja wyjątkowa, kod może zgłosić wyjątek (ang. throw an exception). Wyjątek to obiekt, który przenosi informację o błędzie. Instrukcja throw przerywa normalny przepływ sterowania i przekazuje wyjątek do mechanizmu obsługi wyjątków.
+2. Przechwytywanie wyjątku (catch): Mechanizm obsługi wyjątków szuka odpowiedniego bloku catch, który może obsłużyć zgłoszony wyjątek. Blok catch określa typ wyjątku, który może obsłużyć. Jeśli typ wyjątku pasuje do typu określonego w bloku catch, wyjątek jest przechwytywany, a kod wewnątrz bloku catch jest wykonywany.
+3. Obsługa wyjątku: Kod wewnątrz bloku catch może wykonać różne czynności, takie jak: Wypisanie komunikatu o błędzie, Zalogowanie informacji o błędzie, Próba naprawienia błędu i kontynuowania działania programu, Zakończenie programu w kontrolowany sposób.
+4. Propagacja wyjątku: jeśli wyjątek nie zostanie przechwycony w bieżącej funkcji, jest on propagowany w górę stosu wywołań do funkcji wywołującej. Ten proces trwa, dopóki wyjątek nie zostanie przechwycony przez odpowiedni blok catch lub dopóki nie osiągnie funkcji main().
+   Jeśli wyjątek nie zostanie przechwycony w funkcji main(), program zostanie przerwany.
+
+```cpp
+
+try {
+    // Kod, który może zgłosić wyjątek
+} catch (const std::exception& e) {
+    // Obsługa wyjątku typu std::exception
+} catch (...) {
+    // Obsługa wszystkich innych wyjątków
+} finally {
+    // Kod, który jest zawsze wykonywany
+}
+
+```
+
+1. Blok try: Zawiera kod, który potencjalnie może zgłosić wyjątek.
+2. Blok catch: Zawiera kod, który obsługuje określony typ wyjątku.
+3. Blok finally (opcjonalny): Zawiera kod, który jest zawsze wykonywany, niezależnie od tego, czy wyjątek został zgłoszony i przechwycony, czy nie.
+
+## Odwikłanie stosu
+
+Istnienie bloku try jest potrzebne gdyż w momencie
+rzucenia wyjątku następuje tzw. odwikłanie stosu
+Wykonywane jest sprzątanie obiektów automatycznych,
+które powstały w bloku try, aż do momentu wystąpienia
+sytuacji wyjątkowej.
+
+Nie zostają zlikwidowane obiekty utworzone za pomocą
+operatora new!!!
+
+## Co zrobić z obiektami tworzonymi za pomocą new
+
+Po pierwsze możemy przed rzuceniem wyjątku
+skasować niepotrzebne już obiekty za pomocą
+operatora delete.
+
+Postarać się o przekazanie adresu obiektu w taki
+sposób żeby „przeżył” odwikłanie stosu.
+
+Wykorzystać inteligentny wskaźnik.
+
+## throw i argumenty automatyczne
+
+Podczas odwikłania stosu wszystkie obiekty automatyczne
+zostają zniszczone
+Jeżeli argumentem instrukcji throw jest obiekt
+automatyczny to on też zostanie zniszczony
+Ale informacja zostanie przekazana przez jego kopię,
+umieszczoną w obszarze zmiennych statycznych
+
+## throw i argumenty nie-automatyczne
+
+Oczywiście możemy za pomocą instrukcji
+throw rzucać obiekty nieautomatyczne: Obiekty globalne, Obiekty stworzone operatorem new (jeżeli powód rzucenia wyjątku nie jest brak pamięci). Jednak niezależnie jaki obiekt będziemy
+wyrzucać to catch zawsze odbiera kopię
+tego obiektu
+
+## Wyjątki w destruktorach
+
+NIGDY nie należy rzucać wyjątków z destruktorów!!! Przyczyną dla której nie należy rzucać wyjątków z destruktorów jest ich sposób obsługi: W tym mechanizmie jest założenie, że nie wolno rzucać
+wyjątku dopóki poprzedni wyjątek nie został obsłużony przez
+kompilator
+Rola kompilatora to przeniesienie sterowanie programu z
+punktu wyrzucenia wyjątku do odpowiedniego bloku catch
+(+odwikłanie stosu)
+Nasza rola to reakcja na sytuacje wyjątkową w tym bloku.
+
+Jeżeli jednak zostanie rzucony następny wyjątek przed
+obsłużeniem poprzedniego to program odmówi współpracy i
+zakończy brutalnie działanie
+
+## Brak odpowiedniej obsługi wyjątku
+
+Program powinien obsługiwać wszystkie wyjątki. Jeśli tak nie jest to program kończy działanie i wtedy wywoływana jest funkcja std::terminate(), która to normalnie wywołuje funkcję std::abort();
+
+Powody wywołanie std::terminate():
+
+1. Nie złapany wyjątek
+2. W mechanizmie obsługi wyjątków nastąpił wewnętrzny błąd
+3. Jeżeli podczas odwikłania stosu zostanie rzucony następny
+   wyjątek np. w destruktorze
+4. Jeżeli między rzuceniem wyjątku, a złapaniem go w bloku
+   catch wywołany zostanie konstruktor kopiujący, który rzuci
+   wyjątek
+
+## Zmiana funkcji std::terminate()
+
+```cpp
+void MyTerm()
+{
+	cout << "Wlasna funkcja terminate\n";
+	std::exit(-1);
+}
+
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+int main(int argc, char* argv[])
+{
+
+	void (*ptrTerm)() = MyTerm;
+
+	set_terminate(ptrTerm);
+
+	try
+	{
+		Test1 a("aTest1");
+		cout << "\nRzucam\n";
+
+		throw a;
+	}
+	catch(int)
+	{
+		cout << "\nPo zlapaniu wyjatku\n";
+	}
+
+	cout << "\nZa 1. blokiem catch\n";
+}
+
+```
+
+## Klasy wyjątków
+
+W języku C++ zastosowano obiektowe podejście
+do wyjątków, wyjątki są obiektami, w których umieszczane są
+informacje opisujące dany wyjątek, dla różnych wyjątków mogą istnieć różne klasy. Klasy wyjątków powinny tworzyć hierarchię na
+szczycie, której znajduje się ogólna klasa
+wyjątków.
+
+Zdefiniowane są w pliku nagłówkowym exception (w
+większości). Definiowane nasze klasy wyjątków powinny być
+pochodne względem std::exception
+
+```cpp
+class MyException : public std::exception
+{
+public:
+
+	MyException(const std::string& what = "jakas przyczyna") : m_what(what)
+	{}
+
+	~MyException() throw()
+	{}
+
+	const char* what() const throw()
+	{ return m_what.c_str(); }
+
+private:
+   std::string m_what;
+};
+
+```
+
+# IX Smart pointery
+
+Inteligentne wskaźniki (smart pointers) w C++ to specjalne klasy, które zachowują się jak wskaźniki, ale dodatkowo automatycznie zarządzają pamięcią dynamicznie alokowanych obiektów. Są one zdefiniowane w pliku nagłówkowym <memory> i stanowią kluczowy element nowoczesnego C++, pomagając w unikaniu wycieków pamięci i innych błędów związanych z zarządzaniem zasobami.
+
+## Po co używać inteligentnych wskaźników?
+
+1. Automatyczne zarządzanie pamięcią: Inteligentne wskaźniki automatycznie zwalniają pamięć, gdy obiekt, do którego wskazują, nie jest już potrzebny. Dzięki temu unikasz ręcznego wywoływania delete, co zmniejsza ryzyko wycieków pamięci.
+2. Bezpieczeństwo wyjątków: Inteligentne wskaźniki zapewniają bezpieczne zwalnianie pamięci nawet w przypadku wystąpienia wyjątku.
+3. Współdzielenie zasobów: Niektóre inteligentne wskaźniki (np. std::shared_ptr) umożliwiają współdzielenie zasobów między wieloma wskaźnikami, co jest przydatne w wielu sytuacjach.
+
+## Rodzaje inteligentnych wskaźników:
+
+### std::unique_ptr<T>
+
+1. Reprezentuje wyłączną własność obiektu typu T.
+2. Nie można go kopiować, ale można go przenosić (std::move).
+3. Idealny do sytuacji, gdy tylko jeden obiekt powinien zarządzać danym zasobem.
+
+### std::shared_ptr<T>
+
+1. Reprezentuje współdzieloną własność obiektu typu T.
+2. Licznik referencji śledzi, ile wskaźników std::shared_ptr wskazuje na ten sam obiekt.
+3. Pamięć jest zwalniana, gdy licznik referencji spada do zera
+
+### std::weak_ptr<T>
+
+1. Słaby wskaźnik, który nie zwiększa licznika referencji obiektu.
+2. Używany do obserwacji obiektu zarządzanego przez std::shared_ptr, bez wpływu na jego czas życia.
+3. Można go przekonwertować na std::shared_ptr, aby uzyskać dostęp do obiektu, jeśli nadal istnieje.
+
+## Jak działają inteligentne wskaźniki?
+
+Inteligentne wskaźniki wykorzystują technikę RAII (Resource Acquisition Is Initialization), która polega na tym, że zasoby są nabywane podczas inicjalizacji obiektu i zwalniane w jego destruktorze.
+
+W przypadku std::unique_ptr, destruktor wywołuje delete na wskazywanym obiekcie, gdy inteligentny wskaźnik jest niszczony. W przypadku std::shared_ptr, destruktor zmniejsza licznik referencji, a gdy licznik osiągnie zero, obiekt jest usuwany.
+
+```cpp
+#include <iostream>
+#include <memory>
+
+int main() {
+    std::unique_ptr<int> uniquePtr = std::make_unique<int>(42);
+    std::cout << *uniquePtr << std::endl; // Wypisze 42
+
+    std::shared_ptr<int> sharedPtr1 = std::make_shared<int>(100);
+    std::shared_ptr<int> sharedPtr2 = sharedPtr1; // Współdzielenie własności
+    std::cout << *sharedPtr1 << std::endl; // Wypisze 100
+    std::cout << *sharedPtr2 << std::endl; // Wypisze 100
+
+    return 0;
+}
+
+
+```
+
+W tym przykładzie, pamięć zaalokowana dla uniquePtr i sharedPtr1 zostanie automatycznie zwolniona po zakończeniu funkcji main.
