@@ -1,0 +1,3 @@
+/home/majkeloess/Desktop/oopExam/laby/inne/build/CMakeFiles/Vector.dir
+/home/majkeloess/Desktop/oopExam/laby/inne/build/CMakeFiles/edit_cache.dir
+/home/majkeloess/Desktop/oopExam/laby/inne/build/CMakeFiles/rebuild_cache.dir
