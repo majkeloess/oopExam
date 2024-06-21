@@ -60,18 +60,18 @@ to musi być zaprzyjaźniona
 
 ### Operator przypisania (copy) =
 
--Generowany automatyczne przez kompilator, tak że
-przepisuje obiekt składnik po składniku
+Generowany automatyczne przez kompilator, tak żeprzepisuje obiekt składnik po składniku.
 
--Nie jest generowany automatycznie w sytuacjach:
-◼ Jeżeli klasa ma składnik const
+Nie jest generowany automatycznie w sytuacjach:
 
-◼ Jeżeli klasa ma składnik będący referencją
+- Jeżeli klasa ma składnik const
 
-◼ Jeżeli klasa ma składową klasę, w której operator przypisania
-jest prywatny
+- Jeżeli klasa ma składnik będący referencją
 
-◼ Jeżeli klasa ma klasę podstawową z prywatnym operatorem
+- Jeżeli klasa ma składową klasę, w której operator przypisania
+  jest prywatny
+
+- Jeżeli klasa ma klasę podstawową z prywatnym operatorem
 
 ```cpp
 Point& Point::operator=(const Point& K)
@@ -156,22 +156,22 @@ private:
 
 ### Operator przypisania (move) =
 
--Funkcja wywoływana jest kiedy pojawia się po lewej stronie =, a po jego prawe stoi
-rvalue
+1. Funkcja wywoływana jest kiedy pojawia się po lewej stronie =, a po jego prawe stoi
+   rvalue
 
--„Kradnie” zasoby obiektu stojącego po prawej stronie : np. dla std::string zostawia po prawej stronie obiekt pusty
+2. „Kradnie” zasoby obiektu stojącego po prawej stronie : np. dla std::string zostawia po prawej stronie obiekt pusty
 
--Generowana automatycznie w sytuacji kiedy:
+3. Generowana automatycznie w sytuacji kiedy:
 
-❑ Nie ma konstruktora przenoszalnego (niedomyślnego)
+- Nie ma konstruktora przenoszalnego (niedomyślnego)
 
-❑ Nie ma kopiującego operatora=
+- Nie ma kopiującego operatora=
 
-❑ Nie ma destruktora
+- Nie ma destruktora
 
-❑ Nie ma konstruktora kopiującego (niedomyślnego)
+- Nie ma konstruktora kopiującego (niedomyślnego)
 
-❑ Generowany jest wtedy publiczny i inline T& T::operator=(T&&)
+- Generowany jest wtedy publiczny i inline T& T::operator=(T&&)
 
 -Jeżeli jest „trywialny” wykorzystuje do przenoszenia std::memmove
 

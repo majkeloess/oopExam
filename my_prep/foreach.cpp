@@ -30,7 +30,7 @@ int main()
   majkeloess::for_each(std::begin(vec), std::end(vec), print_val<std::vector<int>::value_type>);
   std::for_each(std::begin(vec), std::end(vec), print_val<std::vector<int>::value_type>);
   std::cout << std::endl;
-  std::cout << std::distance(std::begin(vec), std::end(vec));
+  std::cout << std::distance(std::begin(vec), std::end(vec)); // odległość między ite, zwróci tu 10
   std::cout << std::endl;
 
   return 0;
