@@ -1,23 +1,23 @@
 #include <cstdlib>
 #include <iostream>
-namespace std
-{
-  class vector
-  {
-  };
-  class list
-  {
-  };
-  class deque
-  {
-  };
-  class set
-  {
-  };
-  class map
-  {
-  };
-}
+// namespace std
+// {
+//   class vector
+//   {
+//   };
+//   class list
+//   {
+//   };
+//   class deque
+//   {
+//   };
+//   class set
+//   {
+//   };
+//   class map
+//   {
+//   };
+// }
 
 namespace oop
 {

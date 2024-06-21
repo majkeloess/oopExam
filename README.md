@@ -1828,6 +1828,33 @@ std::cout << std::endl;
 
 W C++ standardowa biblioteka szablonów (STL) oferuje dwa główne rodzaje kontenerów: sekwencyjne (sequence containers) i asocjacyjne (associative containers). Różnią się one sposobem przechowywania i dostępu do elementów.
 
+## Member types
+
+Oto najważniejsze typy członkowskie (member types) w podstawowych kontenerach STL, które warto znać:
+
+1. value_type: Typ przechowywanych elementów (np. int, std::string).
+2. size_type: Typ bez znaku używany do reprezentowania rozmiaru kontenera i indeksów elementów.
+3. difference_type: Typ ze znakiem używany do reprezentowania różnicy między dwoma iteratorami.
+4. reference: Referencja do elementu kontenera (np. int&).
+5. const_reference: Stała referencja do elementu kontenera (np. const int&).
+6. pointer: Wskaźnik do elementu kontenera (np. int\*).
+7. const_pointer: Stały wskaźnik do elementu kontenera (np. const int\*).
+
+oraz do ieratorów:
+
+1. iterator: Iterator umożliwiający modyfikację elementów kontenera.
+2. const_iterator: Iterator umożliwiający tylko odczyt elementów kontenera.
+3. reverse_iterator: Iterator odwrotny (przechodzi przez kontener od końca do początku).
+4. const_reverse_iterator: Stały iterator odwrotny.
+
+```cpp
+  std::vector<int> vec;
+  std::vector<int>::value_type x = 5;            // x jest typu int
+  std::vector<int>::size_type size = vec.size(); // size jest typu size_t
+  std::vector<int>::iterator it = vec.begin();   // it jest iteratorem dla vector<int>
+  std::cout << x << std::endl;                   // Zwraca 5
+```
+
 ## Sequence Containers (Kontenery sekwencyjne)
 
 1. Przechowywanie: Elementy są przechowywane w liniowej kolejności, jeden po drugim.
