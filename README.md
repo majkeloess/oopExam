@@ -1882,6 +1882,34 @@ int main() {
 }
 ```
 
+### Różnica między vec.begin() std::begin(vec)
+
+1. vec.begin() (Metoda członkowska):
+
+- Specyficzna dla kontenera: Ta metoda jest częścią klasy kontenera (np. std::vector, std::list, std::set).
+- Zwraca iterator odpowiedniego typu: Zwraca iterator specyficzny dla danego kontenera (np. std::vector<int>::iterator).
+- Dostęp do elementów: Umożliwia dostęp do elementów kontenera, w tym modyfikację, jeśli iterator nie jest typu const.
+- Użycie: Stosuje się ją bezpośrednio na obiekcie kontenera.
+
+2. std::begin(vec) (Funkcja globalna):
+
+- Uniwersalna: Ta funkcja jest częścią biblioteki standardowej C++ i działa na różnych typach kontenerów.
+- Działa również na tablicach w stylu C: Można jej używać zarówno z kontenerami STL, jak i zwykłymi tablicami.
+- Zwraca iterator odpowiedniego typu: Automatycznie dedukuje typ iteratora na podstawie typu kontenera.
+- Użycie: Stosuje się ją jako funkcję globalną, przekazując obiekt kontenera jako argument.
+
+Kiedy używać której metody?
+
+1. vec.begin():
+
+- Gdy potrzebujesz jawnie określić typ iteratora (np. const_iterator).
+- Gdy chcesz mieć pewność, że pracujesz z iteratorem specyficznym dla danego kontenera.
+
+2. std::begin(vec):
+
+- Gdy chcesz napisać bardziej ogólny kod, który działa z różnymi typami kontenerów (lub tablicami).
+- Gdy nie potrzebujesz jawnie określać typu iteratora (automatyczna dedukcja typu).
+
 ## std::array
 
 std::array to kontener w C++, który przechowuje stałą liczbę elementów danego typu.
@@ -2166,6 +2194,40 @@ int main() {
 
     return 0;
 }
+```
+
+## std::tuple
+
+1. Kolekcja heterogeniczna: Oznacza to, że może przechowywać elementy różnych typów, np. int, string, double, a nawet inne tuple.
+2. Rozmiar stały: Rozmiar std::tuple jest znany w czasie kompilacji i nie można go zmienić dynamicznie.
+3. Dostęp do elementów: Dostęp do elementów odbywa się za pomocą funkcji std::get lub poprzez indeks (od 0).
+
+```cpp
+std::tuple<int, double> oblicz(int x) {
+    return {x * 2, x * 3.14};
+}
+```
+
+```cpp
+
+std::tuple<int, std::string, double> t(42, "hello", 3.14);
+std::cout << std::get(t) << std::endl; // Wypisze "hello"
+std::cout << std::get<std::string>(t) << std::endl; // Wypisze "hello"
+
+auto it = std::find(std::begin(t), std::end(t), 3.14);
+if (it != std::end(t)) {
+    std::cout << "Znaleziono 3.14" << std::endl;
+}
+
+```
+
+```cpp
+std::tuple<int, std::string, double> t(42, "hello", 3.14);
+std::cout << std::tuple_size<decltype(t)>::value << std::endl; // Wypisze 3
+std::cout << typeid(std::tuple_element<1, decltype(t)>::type).name() << std::endl; // Wypisze std::string
+
+
+
 ```
 
 # VIII Wyjątki
