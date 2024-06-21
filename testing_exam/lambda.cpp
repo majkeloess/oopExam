@@ -6,6 +6,7 @@
 // ewentualnie zamiast std::function zrobić klasę szablonową
 
 // template <typename Function>
+
 class liftToVector
 {
 public:
