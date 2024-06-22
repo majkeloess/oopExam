@@ -813,13 +813,7 @@ się do wszystkich sytuacji:
 	//mo�emy u�y� referencji
 	Shape& RefShape = aCirc;
 	//mo�emy u�y� wskaznika
-	Shape* Shape;
-```
-
-## Wirtualny destruktor
-
-Jeżeli klasa ma być klasą bazową to zawsze powinna
-deklarować destruktor jako wirtualny
+	Shape* Shape;constrtualny
 
 ```cpp
 	virtual ~Shape()
