@@ -8,6 +8,8 @@ private:
   std::vector<T> m_stack{};
 
 public:
+  Stack() = default;
+
   size_t size() const
   {
     return m_stack.size();
@@ -15,7 +17,17 @@ public:
 
   T top() const
   {
-    re
+    return m_stack.back();
+  }
+
+  void push(T value)
+  {
+    m_stack.push_back(value);
+  }
+
+  void pop()
+  {
+    m_stack.pop_back();
   }
 };
 
