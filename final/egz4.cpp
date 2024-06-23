@@ -1,33 +1,44 @@
-#include <iostream> 
+#include <iostream>
 #include <cstdlib>
 #include <vector>
 
-namespace OOP{ // tworzymy namespace bo potem wyciągamy z niego ten szablon
-    template<typename T>
-    struct Array{
+namespace OOP
+{
+    template <typename T>
+    class Array
+    {
+    private:
+        T *m_arr{};
+        size_t m_size{};
+        size_t index{};
+
+    public:
         using value_type = T;
-        Array(int size){}
-        
-        Array& insert(char x){
-            _vec.push_back(static_cast<int>(x));
+        Array(size_t size) : m_size{size}, m_arr{new T[size]} {}
+
+        T &operator[](size_t idx) const
+        {
+            return m_arr[idx];
+        }
+
+        Array &insert(T val)
+        {
+            m_arr[index] = val;
+            index++;
             return *this;
         }
 
-        Array& operator%(char x){
-            return insert(x);
+        Array &operator%(T val)
+        {
+            return insert(val);
         }
 
-        T& operator[](int index){
-            return _vec.at(index);
+        size_t operator~() const
+        {
+            return index;
         }
-        int operator ~(){
-            return _vec.size();
-        }
-
-        private:
-            std::vector<T> _vec;
     };
-}
+};
 
 int main()
 {
@@ -36,9 +47,10 @@ int main()
 
     a.insert('#' - 1).insert('P') % type::value_type('O') % ('-') % ('E') % ('G') % ('Z') % ('1');
 
-     ++a[0];
-    for (unsigned i = 0; i != ~a; i++){
+    ++a[0];
+    for (unsigned i = 0; i != ~a; i++)
+    {
         std::cout << static_cast<char>(a[i]) << (i + 1 != ~a ? '_' : '\n');
     }
 }
-//#_P_O_-_E_G_Z_1
+// #_P_O_-_E_G_Z_1
