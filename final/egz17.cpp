@@ -1,5 +1,50 @@
 #include <iostream>
 #include <list>
+#include <algorithm>
+
+void f1(int x)
+{
+  std::cout << x << " ";
+}
+
+void f2(int x)
+{
+  if (x % 2 == 0)
+    std::cout << x << " ";
+}
+
+template <typename Iter, typename Fun>
+void print_to_if(std::ostream &out, Iter beg, Iter end, Fun fun)
+{
+  for (Iter it = beg; it != end; ++it)
+  {
+    fun(*it);
+  }
+  std::cout << std::endl;
+}
+
+// template <typename Iter>
+// void change(Iter beg, Iter end, int val)
+// {
+//   std::for_each(beg, end, [val](int &i)
+//                 { i += val; });
+// }
+
+struct f3
+{
+  int m_val{};
+  f3(int val) : m_val{val} {}
+  void operator()(int &i)
+  {
+    i += m_val;
+  }
+};
+
+template <typename Iter, typename Fun>
+void change(Iter beg, Iter end, Fun fun)
+{
+  std::for_each(beg, end, fun);
+}
 
 int main()
 {

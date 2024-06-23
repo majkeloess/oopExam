@@ -3,6 +3,24 @@
 #include <deque>
 #include <vector>
 
+struct A
+{
+};
+
+struct A_
+{
+  virtual ~A_() {}
+};
+
+template <typename T1, typename T2>
+void my_copy(T1 begin, T1 end, T2 v)
+{
+  if (std::is_pod<typename T1::value_type>::value)
+    std::cout << "Copying POD objects\n";
+  else
+    std::cout << "Copying non-POD objects\n";
+}
+
 int main()
 {
 
