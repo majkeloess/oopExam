@@ -1,5 +1,50 @@
 #include <iostream>
 
+struct A
+{
+    A() = default;
+    int i{};
+};
+
+template <typename T>
+struct ptr
+{
+    T *m_ptr{};
+    ptr() = default;
+    explicit ptr(T *ptr) : m_ptr{ptr} {}
+    ptr(const ptr &other) = delete;
+    ptr &operator=(const ptr &other) = delete;
+
+    T &operator*()
+    {
+        return *m_ptr;
+    }
+
+    T *operator->()
+    {
+        return m_ptr;
+    }
+
+    const T &operator*() const
+    {
+        return *m_ptr;
+    }
+
+    const T *operator->() const
+    {
+        return m_ptr;
+    }
+
+    friend bool operator==(const ptr &p1, const ptr &p2)
+    {
+        return p1.m_ptr == p2.m_ptr;
+    }
+    friend bool operator!=(const ptr &p1, const ptr &p2)
+    {
+        return p1.m_ptr != p2.m_ptr;
+    }
+};
+
 int main()
 {
     const ptr<A> a(new A);
