@@ -36,7 +36,7 @@ int main()
     int_b a(1);
     int_b a_copy(a);
     int_p_b b(new int_p_b::value_type{2});
-    // int_p_b e = b; // error
+    //int_p_b e = b; // error
     //    b = b; // error
 
     std::cout << "a=" << a.get() << std::endl;
