@@ -57,3 +57,9 @@ Box<d>::Draw() --> 14.15
 Box<3BoxIiE>::Draw() --> 13
 Box<3BoxIdE>::Draw() --> 14.15
 */
+
+// Ten kod faktycznie nie wymaga jawnej specjalizacji szablonu Box dla przypadku Box<Box<T>>, ponieważ kompilator C++ jest w stanie automatycznie wygenerować odpowiednią specjalizację na podstawie ogólnego szablonu.
+
+// W tym konkretnym przypadku, jawna specjalizacja szablonu nie jest konieczna, ponieważ ogólny szablon Box jest wystarczająco elastyczny, aby obsłużyć również zagnieżdżone typy Box<Box<T>>. Kompilator automatycznie generuje odpowiednie specjalizacje w razie potrzeby.
+
+// W tym przypadku kompilator jest w stanie wydedukować specjalizację szablonu Box<Box<int>>, ponieważ typ argumentu przekazanego do konstruktora (Box<int>) jednoznacznie wskazuje na tę specjalizację. Dzięki temu nie musisz jawnie definiować specjalizacji, a kod nadal działa poprawnie.
