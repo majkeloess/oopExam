@@ -18,7 +18,7 @@ int main()
 
   std::cout << "\nc posortowane: ";
   std::sort(std::begin(c), std::end(c), [](auto val1, auto val2)
-            { return val1 > val2; });
+            { return val1 < val2; });
   std::for_each(std::begin(c), std::end(c), [](auto val)
                 { std::cout << "[" << val << "]" << " "; });
 

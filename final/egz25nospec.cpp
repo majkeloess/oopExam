@@ -6,7 +6,6 @@ struct Box;
 struct Obj
 {
   virtual void Draw() const = 0; // zamiast `=0` można `{}` dać
-  virtual ~Obj() {}
 };
 
 template <typename T = int> // bez `=int` wywala `Box<>`
@@ -24,9 +23,9 @@ struct Box : Obj
   { // nie trzeba consta
     return _v;
   }
-  friend std::ostream &operator<<(std::ostream &ss, const Box b)
+  friend std::ostream &operator<<(std::ostream &os, const Box b)
   { // albo `const Box&` albo `Box`
-    return ss << b._v;
+    return os << b._v;
   }
 };
 
