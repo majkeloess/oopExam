@@ -15,7 +15,7 @@ struct Box : Obj
   explicit Box(T len) : m_len{len} {}
   void Draw() const override
   {
-    std::cout << typeid(*this).name() << " --> " << m_len << std::endl; // Użycie typeid
+    std::cout << __PRETTY_FUNCTION__ << " --> " << m_len << std::endl;
   }
 
   operator T() const
@@ -27,21 +27,21 @@ struct Box : Obj
 template <typename T>
 struct Box<Box<T>> : Obj
 {
-  Box<T> m_len{};
-  explicit Box(Box<T> len) : m_len{len} {}
+  Box<T> m_box{};
+  explicit Box(Box<T> len) : m_box{len} {}
 
   void Draw() const override
   {
-    std::cout << typeid(*this).name() << " --> " << m_len << std::endl; // Użycie typeid
+    std::cout << __PRETTY_FUNCTION__ << " --> " << m_box << std::endl;
   }
   operator T() const
   {
-    return m_len;
+    return m_box;
   }
 
   operator Box<T>() const
   {
-    return m_len;
+    return m_box;
   }
 };
 

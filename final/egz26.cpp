@@ -4,7 +4,8 @@
 
 int main()
 {
-  std::vector<double> c = {1.6, 2.6, 3.6, 4.6, 5.6, 6.6, 7.6}; // WERSJA 2
+  // std::vector<int> c = {1, 2, 3, 4, 5, 6, 7};                  // WERSJA 1
+  std::vector<double> c = {-1.6, -1.7, -1.8, -0.6, -0.8, 0.9, 1.0}; // WERSJA 2
 
   std::cout << "c: ";
   std::for_each(std::begin(c), std::end(c), [](auto val)
@@ -17,7 +18,7 @@ int main()
 
   std::cout << "\nc posortowane: ";
   std::sort(std::begin(c), std::end(c), [](auto val1, auto val2)
-            { return -((val1 > val2) - (val1 < val2)); });
+            { return val1 > val2; });
   std::for_each(std::begin(c), std::end(c), [](auto val)
                 { std::cout << "[" << val << "]" << " "; });
 
