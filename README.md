@@ -804,7 +804,7 @@ Brak możliwości stworzenie obiektu klasy
 abstrakcyjnej z funkcją czysto wirtualną odnosi
 się do wszystkich sytuacji:
 
-```cpp
+````cpp
 	//Nie mo�na stworzy� obiektu klasy abstrakcyjnej
 	// Shape aShape;
 	Rec aRec;
@@ -818,7 +818,7 @@ się do wszystkich sytuacji:
 ```cpp
 	virtual ~Shape()
 	{}
-```
+````
 
 ## C++11 override i final
 
@@ -2759,5 +2759,63 @@ private:
 Storage<int> intStorage(5); // Przechowywane na stosie
 Storage<std::array<int, 100>> arrayStorage({1, 2, 3}); // Przechowywane na stercie
 //
+
+```
+
+# Dodatki
+
+## Argument-Dependent Lookup (ADL)
+
+1. Cecha C++, która pozwala na automatyczne rozszerzenie przestrzeni nazw, w których kompilator szuka definicji wywołanych funkcji lub operatorów, gdy znajdują się one poza bieżącą przestrzenią nazw
+2. Kompilator dodatkowo przeszukuje namespace’y w których:
+   - Zdefiniowane są typy argumentów przekazanych do funkcji
+   - Zdefiniowany jest typ obiektu na którym został wywołany jego operator
+3. Standardowo kompilator poszukuje tych definicji w bieżącej przestrzeni nazw oraz w przestrzeniach rodziców
+
+```cpp
+// Przykład 1:
+
+std::cout << "Test\n";
+// Nie ma zdefiniowanego operatora << w bieżącej przestrzeni nazw,
+// ale ADL sprawdza także przestrzeń stl bo lewy argument stamtąd pochodzi
+// I rzeczywiście, w przestrzeni std znajduje się:
+// std::ostream& std::operator<<(std::ostream&, const char*)
+
+operator<<(std::cout, "Test\n"); // Zapis alternatywny
+
+// Przykład 2:
+
+namespace A {
+    struct Entity {};
+
+    void foo(Entity e) { }
+}
+
+int main() {
+    A::Entity e;
+    foo(e);    // ADL - nie trzeba pisać A::foo
+}
+
+```
+
+```cpp
+template<typename T>
+struct number
+{
+    number(int);
+    friend number gcd(number x, number y) { return 0; }; // Definition within
+                                                         // a class template
+};
+
+
+// Unless a matching declaration is provided gcd is
+// an invisible (except through ADL) member of this namespace
+void g()
+{
+    number<double> a(3), b(4);
+    a = gcd(a, b); // Finds gcd because number<double> is an associated class,
+                   // making gcd visible in its namespace (global scope)
+//  b = gcd(3, 4); // Error; gcd is not visible
+}
 
 ```
