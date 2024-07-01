@@ -1,6 +1,33 @@
 #include <iostream>
 #include <utility>
 
+class A
+{
+private:
+    int _a{};
+    int _b{};
+
+public:
+    A(int a, int b) : _a{a}, _b{b}
+    {
+        std::cout << __PRETTY_FUNCTION__ << " _a =" << _a << ", b=" << _b << std::endl;
+    }
+    A() : A(0, 0)
+    {
+        std::cout << __PRETTY_FUNCTION__ << " _a =" << _a << ", b=" << _b << std::endl;
+    }
+    explicit A(int a) : A(a, 0)
+    {
+        std::cout << __PRETTY_FUNCTION__ << " _a =" << _a << ", b=" << _b << std::endl;
+    }
+    A(const A &other) = delete;
+    A(A &&other) : _a{other._a}, _b{other._b}
+    {
+        std::cout << __PRETTY_FUNCTION__ << " _a =" << _a << ", b=" << _b << std::endl;
+    }
+    ~A() = default;
+};
+
 int main()
 {
     std::cout << "a->";
@@ -14,7 +41,7 @@ int main()
     A d = std::move(c);
 
     // A e = c;
-    // A f = 1;
+    //  A f = 1;
 }
 /*
 a-> A::A(int,int): _a=0,_b=0
