@@ -5,25 +5,25 @@
 int main()
 {
   // std::vector<int> c = {1, 2, 3, 4, 5, 6, 7};                  // WERSJA 1
-  std::vector<double> c = {-1.6, -1.7, -1.8, -0.6, -0.8, 0.9, 1.0}; // WERSJA 2
+  std::vector<double> c = {1.6, 2.6, 3.6, 4.6, 5.6, 6.6, 7.6};
 
   std::cout << "c: ";
-  std::for_each(std::begin(c), std::end(c), );
+  std::for_each(std::begin(c), std::end(c), [](auto val){std::cout << val << " ";} );
 
   std::cout << "\nc wieksze od 3.5: ";
-  std::for_each(std::begin(c), std::end(c), );
+  std::for_each(std::begin(c), std::end(c), [](auto val){if(val > 3.5) std::cout << val << " ";});
 
   std::cout << "\nc posortowane: ";
-  std::sort(std::begin(c), std::end(c), );
-  std::for_each(std::begin(c), std::end(c), );
+  std::sort(std::begin(c), std::end(c), [](const auto a, const auto b){return a > b;} );
+  std::for_each(std::begin(c), std::end(c), [](auto val){std::cout << val << " ";});
 
   std::cout << "\nc dodane 'x': ";
   decltype(*std::begin(c)) x = *std::begin(c);
 
-  std::for_each(std::begin(c), std::end(c), );
-  std::for_each(std::begin(c), std::end(c), );
+  std::for_each(std::begin(c), std::end(c), [x](auto &val){val+=x;} );
+  std::for_each(std::begin(c), std::end(c), [](auto val){std::cout << val << " ";});
 
-  auto f;
+  auto f = [&x](auto val){ x+=val; return x;};
   std::cout << "\nx: " << x << " ";
   std::cout << "f: " << f(6) << " ";
   std::cout << "x: " << x << std::endl;

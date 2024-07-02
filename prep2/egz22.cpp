@@ -1,6 +1,56 @@
 #include <iostream>
 #include <type_traits>
 
+struct A{
+  int i = 1;
+  A() = default;
+};
+
+
+template <typename T>
+struct ptr{
+  T *m_ptr{};
+  ptr() = default;
+  explicit ptr(T *ptr) : m_ptr{ptr} {}
+  ptr(const ptr &other) = delete;
+  ptr &operator=(const ptr &other) = delete;
+
+  T *operator->() const
+  {
+    return m_ptr;
+  }
+
+  T &operator*() const
+  {
+    return *m_ptr;
+  }
+  
+  T *operator->()
+  {
+    return m_ptr;
+  }
+
+  T &operator*()
+  {
+    return *m_ptr;
+  }
+
+  friend bool operator==(const ptr &ptr1, const ptr &ptr2)
+  {
+    return ptr1.m_ptr == ptr2.m_ptr;
+  }
+
+  friend bool operator!=(const ptr &ptr1, const ptr &ptr2)
+  {
+    return ptr1.m_ptr != ptr2.m_ptr;
+  }
+
+  ~ptr() {
+    delete m_ptr;
+    m_ptr = nullptr;
+  }
+};
+
 
 int main() {
   const ptr<A>  a(new A);

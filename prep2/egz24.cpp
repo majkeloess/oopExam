@@ -1,3 +1,35 @@
+#include <iostream>
+
+struct Obj{
+  
+  virtual void Draw() const = 0;
+  virtual ~Obj() {}
+
+};
+
+template <typename T = int>
+struct Box : Obj{
+  T m_val{};
+  explicit Box(T val) : m_val{val} {}
+
+  void Draw() const override
+  {
+    std::cout << "Box<" << typeid(m_val).name() << ">::Draw --> " << m_val << std::endl;
+  }
+
+  operator T() const 
+  {
+    return m_val;
+  }
+
+  friend std::ostream &operator<<(std::ostream &out, const Box &box)
+  {
+    out << box.m_val;
+    return out;
+  }
+};
+
+
 int main()
 {
 
@@ -19,3 +51,10 @@ int main()
   Box<double> b_a = bb_d;
   // Box<int> _ = 1;     // BŁĄD KOMPILACJI
 }
+
+/*
+Box<i>::Draw() --> 13
+Box<d>::Draw() --> 14.15
+Box<3BoxIiE>::Draw() --> 13
+Box<3BoxIdE>::Draw() --> 14.15
+*/
