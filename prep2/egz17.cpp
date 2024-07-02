@@ -1,6 +1,50 @@
 #include <iostream>
 #include <list>
 
+
+
+void f1(int i)
+{
+  std::cout << i << " ";
+}
+
+void f2(int i)
+{
+  if(i % 2 == 0)
+    std::cout << i << " ";
+}
+
+struct f3{
+  int m_val{};
+  f3(int val) : m_val{val} {}
+  void operator()(int &i)
+  {
+    i+=m_val;
+  }
+};
+
+template <typename Iter, typename Fun>
+void print_to_if(std::ostream &out, Iter beg, Iter end, Fun fun)
+{
+  out;
+  for (Iter it = beg; it != end; ++it)
+  {
+    fun(*it);
+  }
+  std::cout << std::endl;
+}
+
+template <typename Iter, typename Fun>
+void change(Iter beg, Iter end, Fun fun)
+{
+  for (Iter it = beg; it != end; ++it)
+  {
+    fun(*it);
+  }
+}
+
+
+
 int main()
 {
   const auto cl = {1, 2, 3, 4, 5, 6, 7};

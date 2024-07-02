@@ -35,6 +35,7 @@ struct Box<Box<T>> : Obj
   {
     std::cout << __PRETTY_FUNCTION__ << " --> " << m_len << std::endl;
   }
+  
   operator T() const
   {
     return m_len;

@@ -9,6 +9,53 @@ namespace std{
 #include<cstdlib>
 #include <iostream>
 
+
+namespace oop
+{
+  template <typename T>
+  class Array{
+    private:
+      T *m_arr{};
+      size_t m_size{};
+      size_t m_index{};
+    public:
+      using value_type = T;
+      Array(size_t size) : m_size{size}, m_arr{new T [size]} {}
+      ~Array() 
+      {
+        delete[] m_arr;
+        m_arr = nullptr;
+        m_size = 0;
+        m_index = 0;
+      }
+
+      Array &insert(T val)
+      {
+        m_arr[m_index] = val;
+        m_index++;
+        return *this;
+      }
+
+      Array &operator+(T val)
+      {
+        return insert(val);
+      }
+
+      T &operator[](size_t index) const 
+      {
+        return m_arr[index];
+      }
+
+      size_t operator~() const
+      {
+        return m_index;
+      }
+  };
+
+};
+
+
+
 int main(){
 
     typedef oop::Array<char> type;

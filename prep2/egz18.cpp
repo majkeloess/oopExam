@@ -2,6 +2,49 @@
 #include<iostream>
 #include<algorithm>
 
+
+template <typename T = float>
+struct Type_t{
+  T _v{};
+  Type_t() = default;
+  explicit Type_t(T val) : _v{val} {}
+
+
+  friend std::ostream &operator<<(std::ostream &out, const Type_t &type)
+  {
+    out << type._v;
+    return out;
+  }
+
+};
+
+template <typename T>
+struct ptr{
+  using value_type = T;
+  T *m_ptr{};
+  ptr() = default;
+  explicit ptr(T *ptr) : m_ptr{ptr} {}
+  ptr(const ptr &other) = delete;
+  ptr(ptr &&other) : m_ptr{other.m_ptr} {
+    other.m_ptr = nullptr;
+  }
+
+  ptr &operator=(const ptr &other) = delete;
+
+  T &operator*() const 
+  {
+    return *m_ptr;
+  }
+
+  T *operator->() const 
+  {
+    return m_ptr;
+  }
+
+};
+
+
+
 using Float_t = Type_t<>;
 
 int main(){

@@ -1,3 +1,40 @@
+#include <iostream>
+
+
+template <typename T>
+struct B{
+    T m_val{};
+    B(T val) : m_val{val} {}
+
+    T get() const 
+    {
+        return m_val;
+    }
+};
+
+template <typename T>
+struct B<T*>{
+    using value_type = T;
+    T *m_ptr{};
+    B(T *ptr) : m_ptr{ptr} {}
+    B(const B &other) = delete;
+    B &operator=(const B &other) = delete;
+
+
+    T get() const 
+    {
+        return *m_ptr;
+    }
+
+    ~B()
+    {
+        delete m_ptr;
+    }
+
+};
+
+
+
 int main()
 {
     typedef B<int> int_b;
@@ -17,3 +54,4 @@ int main()
 a=1
 a_copy=2
  b=3
+ */
