@@ -76,7 +76,7 @@ int main()
 
   //  Derived1 d1_make_err = d2;
 
-  // std::vector<Base> v_make_err = {d1, d2, d3};
+  //std::vector<Base> v_make_err = {d1, d2, d3};
   // żeby to nie działało trzeba w bazowej wyjebać kopiujący i dodać kopiujący w d2
   std::vector<Base *> v = {&d1, &d2, &d3};
 

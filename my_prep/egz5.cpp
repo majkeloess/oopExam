@@ -2,15 +2,19 @@
 #include <iostream>
 #include <list>
 
-void f1(int val)
-{
+auto f1 = [](auto val){
   std::cout << " " << val;
-}
-void f2(int val)
+};
+
+// void f1(int val)
+// {
+//   std::cout << " " << val;
+// }
+auto f2 = [](auto val)
 {
   if (val % 2 == 0)
     std::cout << " " << val;
-}
+};
 
 struct f3
 {
