@@ -9,7 +9,7 @@ interesującego nas operatora:
 -Może być globalną funkcją – wyjątki
 
 Natomiast następujące operatory nie mogą być
-przeładowywane: ., .\*, ::, ?:
+przeładowywane: ., .\*, ::, ?
 
 Dla każdej klasy następujące operatory są
 generowane automatycznie: =, &(jednoargumentowy – pobranie adresu), new, , , delete
